@@ -34,7 +34,7 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final MoveMeters moveMeterCommand = new MoveMeters(4, drivetrain);
+    private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
 
     public RobotContainer() {
         configureBindings();
