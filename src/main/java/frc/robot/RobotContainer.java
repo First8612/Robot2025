@@ -9,6 +9,11 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.StrobeAnimation;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -40,10 +45,17 @@ public class RobotContainer {
     private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
 
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("MoveMeter Auto");
-
+    CANdle candle = new CANdle(40,"CCR8612");
     public RobotContainer() {
         SmartDashboard.putData("Auto Path", autoChooser);
         configureBindings();
+        CANdleConfiguration config = new CANdleConfiguration();
+        config.stripType = LEDStripType.RGB; // set the strip type to RGB
+        config.brightnessScalar = 1; // dim the LEDs to half brightness
+        candle.configAllSettings(config);
+        candle.setLEDs(255, 255, 255);
+        StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
+        candle.animate(rainbowAnim);
         
     }
 
