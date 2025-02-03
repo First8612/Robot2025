@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start to reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Round Reef 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Round Reef 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Round Reef 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Round Reef 4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

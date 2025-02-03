@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -40,11 +42,13 @@ public class RobotContainer {
     private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
 
     private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("MoveMeter Auto");
+    private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
 
     public RobotContainer() {
-        SmartDashboard.putData("Auto Path", autoChooser);
         configureBindings();
-        
+        SmartDashboard.putData("Auto Path", autoChooser);
+        //commands for pathplanner
+        NamedCommands.registerCommand("MoveMeter", moveMeters);
     }
 
     private void configureBindings() {
