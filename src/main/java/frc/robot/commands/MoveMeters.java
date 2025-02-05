@@ -38,7 +38,7 @@ public class MoveMeters extends Command {
 
     @Override
     public void execute() {
-        System.out.println("Moving 1");
+        //System.out.println("Moving 1");
 
         var velocity = driveController.calculate(drivetrain.getState().Pose.getX());
         velocity = rateLimiter.calculate(velocity);
