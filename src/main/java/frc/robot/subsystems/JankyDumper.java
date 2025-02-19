@@ -41,7 +41,7 @@ public class JankyDumper extends SubsystemBase{
         dumpy.configure(dumpyConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         dumpyEncoder.setPosition(0);
-        dumpysOwnPID.setReference(0, ControlType.kPosition);
+        //dumpysOwnPID.setReference(0, ControlType.kPosition);
     }
 
     @Override
@@ -67,3 +67,6 @@ public class JankyDumper extends SubsystemBase{
         }, this);
     }
 }
+
+
+

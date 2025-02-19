@@ -24,15 +24,17 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.Aim;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.AscendTo;
+import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Canrange;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.JankyDumper;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+   private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -46,25 +48,33 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
-    private final JankyDumper jankyDumper = new JankyDumper();
+    //TEST BOT
+    // private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
+    // private final JankyDumper jankyDumper = new JankyDumper();
+    private final Canrange canRange = new Canrange();
 
-    private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("MoveMeter Auto");
-    CANdle candle = new CANdle(40,"CCR8612");    
+    private final SendableChooser<Command> autoChooser;
+    CANdle candle = new CANdle(40,"CCR8612");
     private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
+    private final IWannaDumpSomeCoral aprilFollow = new IWannaDumpSomeCoral(drivetrain, false);
 
     public RobotContainer() {
-        configureBindings();
-        SmartDashboard.putData("Auto Path", autoChooser);
         //commands for pathplanner
         CANdleConfiguration config = new CANdleConfiguration();
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 1; // dim the LEDs to half brightness
+        config.brightnessScalar = 0.02; // dim the LEDs to half brightness
         candle.configAllSettings(config);
         candle.setLEDs(255, 255, 255);
         // StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
         // candle.animate(rainbowAnim);
-        NamedCommands.registerCommand("MoveMeter", moveMeters);
+        NamedCommands.registerCommand("MoveMeter", new MoveMeters(1,drivetrain));
+        
+        configureBindings();
+
+        drivetrain.configureAutoBuilder();
+        autoChooser = AutoBuilder.buildAutoChooser("MoveMeter Auto");
+        
+        SmartDashboard.putData("Auto Path", autoChooser);
     }
 
     private void configureBindings() {
@@ -84,7 +94,8 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
 
-        joystick.rightBumper().whileTrue(jankyDumper.createDumpCommand());
+        //TEST BOT STUFF
+        //joystick.rightBumper().whileTrue(jankyDumper.createDumpCommand());
         // joystick.rightTrigger().toggleOnTrue(new Aim(drivetrain));
 
         // Run SysId routines when holding back/start and X/Y.
@@ -96,7 +107,7 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
+        joystick.rightBumper().whileTrue(aprilFollow);
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

@@ -31,7 +31,7 @@ public class Aim extends Command {
         var tx = LimelightHelpers.getTX("limelight");
 
         var rotation = pidController.calculate(tx);
-        System.out.println(rotation);
+        //System.out.println(rotation);
 
         drivetrain.setControl(drive.withVelocityX(0.5)
             .withVelocityY(0)

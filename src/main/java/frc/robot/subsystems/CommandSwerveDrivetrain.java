@@ -133,7 +133,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        // configureAutoBuilder();
     }
 
     /**
@@ -158,7 +158,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        // configureAutoBuilder();
     }
 
     /**
@@ -191,10 +191,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        // configureAutoBuilder();
     }
 
-    private void configureAutoBuilder() {
+    public void configureAutoBuilder() {
         System.out.println("trying to configure auto");
         try {
             var config = RobotConfig.fromGUISettings();
