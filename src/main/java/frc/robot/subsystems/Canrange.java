@@ -11,9 +11,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Canrange extends SubsystemBase {
   /** Creates a new Canrange. */
-  public CANrange caNrange = new CANrange(0);
+  public static CANrange caNrange = new CANrange(0);
+  public static double getRange() {
+    return caNrange.getDistance().getValueAsDouble();
+  }
   public Canrange() {
-
+    
   }
   /**
    * Example command factory method.

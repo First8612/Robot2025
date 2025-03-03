@@ -15,6 +15,24 @@
           "data": {
             "name": "MoveMeter"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "pointAtApriltag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "offsetLeft"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "offsetRight"
+          }
         }
       ]
     }

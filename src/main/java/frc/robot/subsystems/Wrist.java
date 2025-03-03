@@ -4,34 +4,18 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase {
-  public SparkMax wrister = new SparkMax(200,MotorType.kBrushless);
-  public RelativeEncoder wristEncoder = wrister.getEncoder();
-  public SparkClosedLoopController wristPID = wrister.getClosedLoopController();
-
+  public TalonFX wristMotor = new TalonFX(200);
+  
   /** Creates a new Wrist. */
   public Wrist() {
-    SparkMaxConfig wristConfig = new SparkMaxConfig();
-    wristConfig
-      .idleMode(IdleMode.kBrake);
-    wristConfig.closedLoop
-      .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .pid(0.1, 0.0, 0.0);
-    wrister.configure(wristConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    wristEncoder.setPosition(0);
+    
   }
 
   /**

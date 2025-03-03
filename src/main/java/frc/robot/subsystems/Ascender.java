@@ -15,11 +15,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Ascender extends SubsystemBase {
   /** Creates a new Ascender. */
   //needs ID!!!
-  public TalonFX ascendMotorRight = new TalonFX(100);
-  public TalonFX ascendMotorLeft = new TalonFX(101);
-  public TalonFX pivotMotorRight = new TalonFX(102);
-  public TalonFX pivotMotorLeft = new TalonFX(103);
+  public TalonFX ascendMotor = new TalonFX(100);
+  public TalonFX pivotMotorRight = new TalonFX(101);
+  public TalonFX pivotMotorLeft = new TalonFX(102);
   public TalonFXConfiguration talonConfig = new TalonFXConfiguration();
+
   public Ascender() {
     //ascendMotorRight.MasterID(100).OpposeMasterDirection(false);
   }
