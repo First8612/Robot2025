@@ -17,10 +17,12 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -226,7 +228,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         System.out.println("auto configured");
     }
 
-    
+    private void recordModuleTelemetry(int moduleIndex) {
+        var module = this.getModule(moduleIndex);
+
+        SmartDashboard.putNumber("Drivebase/modules/" + moduleIndex + "/driveMotor/voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Drivebase/modules/" + moduleIndex + "/driveMotor/statorCurrent", module.getDriveMotor().getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Drivebase/modules/" + moduleIndex + "/driveMotor/velocity", module.getDriveMotor().getMotorKV().getValueAsDouble());
+        SmartDashboard.putNumber("Drivebase/modules/" + moduleIndex + "/driveMotor/position", module.getDriveMotor().getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Drivebase/modules/" + moduleIndex + "/angle/position", module.getEncoder().getAbsolutePosition().getValueAsDouble());
+        recordModuleStateTelemetry("Drivebase/modules/" + moduleIndex + "/currentState", module.getCurrentState());
+        recordModuleStateTelemetry("Drivebase/modules/" + moduleIndex + "/targetState", module.getTargetState());
+    }
+    private void recordModuleStateTelemetry(String name, SwerveModuleState state) {
+        SmartDashboard.putNumber(name + "/angle", state.angle.getDegrees());
+        SmartDashboard.putNumber(name + "/speed", state.speedMetersPerSecond);
+
+        
+    }
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
@@ -278,7 +296,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 );
                 m_hasAppliedOperatorPerspective = true;
             });
-        }
+        }   
+        
+        recordModuleTelemetry(0);
+        recordModuleTelemetry(1);
+        recordModuleTelemetry(2);
+        recordModuleTelemetry(3);
+
     }
 
     private void startSimThread() {

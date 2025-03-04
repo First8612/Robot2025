@@ -111,8 +111,8 @@ public class RobotContainer {
         //joystickDrive.rightBumper().whileTrue(jankyDumper.createDumpCommand());
         // joystickDrive.rightTrigger().toggleOnTrue(new Aim(drivetrain));
 
-        joystickDrive.button(2).onTrue(Commands.runOnce(SignalLogger::start));
-        joystickDrive.button(0).onTrue(Commands.runOnce(SignalLogger::stop));
+        // joystickDrive.button(2).onTrue(Commands.runOnce(SignalLogger::start));
+        // joystickDrive.button(1).onTrue(Commands.runOnce(SignalLogger::stop));
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         joystickDrive.rightBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));

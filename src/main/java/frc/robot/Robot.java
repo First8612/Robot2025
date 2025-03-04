@@ -21,7 +21,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     m_robotContainer = new RobotContainer();
 
-    SmartDashboard.putData("PDP", new PowerDistribution());
+    // SmartDashboard.putData("PDP", new PowerDistribution());
   }
 
   @Override
