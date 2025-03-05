@@ -73,7 +73,7 @@ public class RobotContainer {
         //commands for pathplanner
         CANdleConfiguration config = new CANdleConfiguration();
         config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 0.02; // dim the LEDs to half brightness
+        config.brightnessScalar = 0.2; // dim the LEDs to half brightness
         candle.configAllSettings(config);
         candle.setLEDs(255, 255, 255);
         // StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
@@ -101,7 +101,6 @@ public class RobotContainer {
                     .withRotationalRate(-Math.pow(joystickDrive.getRightX(), 3) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-
         joystickDrive.a().whileTrue(drivetrain.applyRequest(() -> brake));
         joystickDrive.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystickDrive.getLeftY(), -joystickDrive.getLeftX()))
@@ -121,6 +120,7 @@ public class RobotContainer {
         joystickDrive.leftBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
+        joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
 

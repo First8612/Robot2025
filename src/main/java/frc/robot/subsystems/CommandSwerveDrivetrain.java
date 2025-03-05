@@ -241,9 +241,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
     private void recordModuleStateTelemetry(String name, SwerveModuleState state) {
         SmartDashboard.putNumber(name + "/angle", state.angle.getDegrees());
-        SmartDashboard.putNumber(name + "/speed", state.speedMetersPerSecond);
-
-        
+        SmartDashboard.putNumber(name + "/speed", state.speedMetersPerSecond);        
     }
 
     /**
