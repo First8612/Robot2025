@@ -10,6 +10,10 @@ import frc.robot.subsystems.Wrist;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.revrobotics.spark.SparkBase.ControlType;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
@@ -18,7 +22,6 @@ public class AscendTo extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private Ascender ascender = new Ascender();
   private Wrist wrist = new Wrist();
-  double preHeights[][] = {{1,1,1},{1,1,1},{1,1,1},{1,1,1},{1,1,1}};
   double pivotRotations = 0;
   double elevatorRotations = 0;
   double wristRotations = 0;
@@ -28,25 +31,27 @@ public class AscendTo extends Command {
    * @param subsystem The subsystem used by this command.
    */
   public AscendTo(Ascender subsystem, int preHeight) {
-    pivotRotations = preHeights[preHeight][0];
-    elevatorRotations = preHeights[preHeight][1];
-    wristRotations = preHeights[preHeight][2];
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
 
+  SlewRateLimiter ascendLimit = new SlewRateLimiter(1);
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    ascender.pivotMotorLeft.setPosition(pivotRotations);
-    ascender.pivotMotorRight.setPosition(-pivotRotations);
-    ascender.ascendMotor.setPosition(elevatorRotations);
-    wrist.wristMotor.setPosition(wristRotations);
+    //init stuff
   }
-
+  double ascendError = 0;
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    ascendError = elevatorRotations - ascender.ascendMotor.getPosition().getValueAsDouble();
+    var ascendVelocity = -ascendControl.calculate(ascendError);
+    ascendVelocity = MathUtil.clamp(ascendLimit.calculate(ascendVelocity),-0.1,0.1);
+
+    ascender.ascendMotor.set(ascendVelocity);
+    SmartDashboard.putNumber("Ascender Error", ascendError * 1.621);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -57,6 +62,10 @@ public class AscendTo extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    var fin = false;
+    if(Math.abs(ascendError)<=0.1 && ascendError != 0) {
+      fin = true;
+    }
+    return fin;
   }
 }

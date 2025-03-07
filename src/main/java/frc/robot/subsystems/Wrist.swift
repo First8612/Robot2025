@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase {
-  public TalonFX wristMotor = new TalonFX(200);
-  
+  public TalonFX clawMotor = new TalonFX(20);
+
   /** Creates a new Wrist. */
   public Wrist() {
     

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Robot extends TimedRobot {
@@ -23,6 +24,7 @@ public class Robot extends TimedRobot {
 
     // SmartDashboard.putData("PDP", new PowerDistribution());
   }
+
 
   @Override
   public void robotPeriodic() {
@@ -47,6 +49,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    super.autonomousInit();
+    m_robotContainer.autonomousInit();
   }
 
   @Override
@@ -60,6 +64,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    super.teleopInit();
+    m_robotContainer.teleopInit();
   }
 
   @Override

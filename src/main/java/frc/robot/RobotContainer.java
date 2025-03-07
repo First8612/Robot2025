@@ -24,10 +24,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.Aim;
-import frc.robot.commands.AscendTo;
 import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
@@ -35,6 +36,7 @@ import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.Canrange;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.JankyDumper;
+import frc.robot.subsystems.StabbyThingy;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -58,16 +60,13 @@ public class RobotContainer {
     // private final JankyDumper jankyDumper = new JankyDumper();
     private final Canrange canRange = new Canrange();
     private final Ascender ascender = new Ascender();
+    private final StabbyThingy stabber = new StabbyThingy();
 
     private final SendableChooser<Command> autoChooser;
-    CANdle candle = new CANdle(40,"CCR8612");
+    CANdle candle = new CANdle(40);
     private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
     private final IWannaDumpSomeCoral aprilFollowLeft = new IWannaDumpSomeCoral(drivetrain, true);
     private final IWannaDumpSomeCoral aprilFollowRight = new IWannaDumpSomeCoral(drivetrain, false);
-    private final AscendTo ascendL1 = new AscendTo(ascender, 0);
-    private final AscendTo ascendL2 = new AscendTo(ascender, 1);
-    private final AscendTo ascendL3 = new AscendTo(ascender, 2);
-    private final AscendTo ascendL4 = new AscendTo(ascender, 3);
 
     public RobotContainer() {
         //commands for pathplanner
@@ -127,11 +126,24 @@ public class RobotContainer {
         //joystickDrive.x().whileTrue(aprilFollowLeft);
         joystickDrive.b().whileTrue(aprilFollowRight);
 
-        joystickOperater.a().whileTrue(ascendL1);
-        joystickOperater.b().whileTrue(ascendL2);
-        joystickOperater.x().whileTrue(ascendL3);
-        joystickOperater.y().whileTrue(ascendL4);
+        joystickOperater.a().onTrue(new InstantCommand(() -> ascender.goToPosition(1), ascender));
+        joystickOperater.b().onTrue(new InstantCommand(() -> ascender.goToPosition(2), ascender));
+        joystickOperater.x().onTrue(new InstantCommand(() -> ascender.goToPosition(3), ascender));
+        joystickOperater.y().onTrue(new InstantCommand(() -> ascender.goToPosition(4), ascender));
+        joystickOperater.rightTrigger().whileTrue(new RunCommand(() -> stabber.inFork(joystickOperater.getRightTriggerAxis() / 10)));
+        joystickOperater.leftTrigger().whileTrue(new RunCommand(() -> stabber.inFork(-joystickOperater.getLeftTriggerAxis() / 10)));
+        if(!joystickOperater.leftTrigger().getAsBoolean()) {
+            joystickOperater.rightTrigger().whileFalse(new RunCommand(() -> stabber.inFork(0)));
+        }
     }
+
+    public void autonomousInit() {
+        ascender.goToPosition(0);
+    }
+    public void teleopInit() {
+        ascender.goToPosition(0);
+    }
+
     
 
     public Command getAutonomousCommand() {

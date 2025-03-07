@@ -4,13 +4,19 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class StabbyThingy extends SubsystemBase {
+  public TalonFX forkMotor = new TalonFX(20);
   /** Creates a new StabbyThingy. */
-  public StabbyThingy() {}
+  public StabbyThingy() {
 
+  }
+  public PIDController forkController = new PIDController(0.01, 0, 0);
   /**
    * Example command factory method.
    *
@@ -24,7 +30,9 @@ public class StabbyThingy extends SubsystemBase {
           /* one-time action goes here */
         });
   }
-
+  public void inFork(double speed) {
+    forkMotor.set(speed);
+  }
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
    *
