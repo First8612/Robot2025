@@ -26,15 +26,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.Aim;
-import frc.robot.commands.AscendTo;
-import frc.robot.commands.IWannaDumpSomeCoral;
-import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Ascender;
-import frc.robot.subsystems.Canrange;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.JankyDumper;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -50,44 +43,13 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystickDrive = new CommandXboxController(0);
-    private final CommandXboxController joystickOperater = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    //TEST BOT
-    // private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
-    // private final JankyDumper jankyDumper = new JankyDumper();
-    private final Canrange canRange = new Canrange();
-    private final Ascender ascender = new Ascender();
 
-    private final SendableChooser<Command> autoChooser;
-    CANdle candle = new CANdle(40,"CCR8612");
-    private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
-    private final IWannaDumpSomeCoral aprilFollowLeft = new IWannaDumpSomeCoral(drivetrain, true);
-    private final IWannaDumpSomeCoral aprilFollowRight = new IWannaDumpSomeCoral(drivetrain, false);
-    private final AscendTo ascendL1 = new AscendTo(ascender, 0);
-    private final AscendTo ascendL2 = new AscendTo(ascender, 1);
-    private final AscendTo ascendL3 = new AscendTo(ascender, 2);
-    private final AscendTo ascendL4 = new AscendTo(ascender, 3);
-
-    public RobotContainer() {
-        //commands for pathplanner
-        CANdleConfiguration config = new CANdleConfiguration();
-        config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 0.02; // dim the LEDs to half brightness
-        candle.configAllSettings(config);
-        candle.setLEDs(255, 255, 255);
-        // StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
-        // candle.animate(rainbowAnim);
-        NamedCommands.registerCommand("MoveMeter", new MoveMeters(1,drivetrain));
-        NamedCommands.registerCommand("ReefOffsetLeft", aprilFollowLeft);
-        NamedCommands.registerCommand("ReefOffsetRight", aprilFollowRight);
-        
+    public RobotContainer() {    
         configureBindings();
 
         drivetrain.configureAutoBuilder();
-        autoChooser = AutoBuilder.buildAutoChooser("MoveMeter Auto");
-        
-        SmartDashboard.putData("Auto Path", autoChooser);
     }
 
     private void configureBindings() {
@@ -107,34 +69,11 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-joystickDrive.getLeftY(), -joystickDrive.getLeftX()))
         ));
 
-        //TEST BOT STUFF
-        //joystickDrive.rightBumper().whileTrue(jankyDumper.createDumpCommand());
-        // joystickDrive.rightTrigger().toggleOnTrue(new Aim(drivetrain));
-
-        // joystickDrive.button(2).onTrue(Commands.runOnce(SignalLogger::start));
-        // joystickDrive.button(1).onTrue(Commands.runOnce(SignalLogger::stop));
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystickDrive.rightBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystickDrive.rightBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystickDrive.leftBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystickDrive.leftBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        //joystickDrive.x().whileTrue(aprilFollowLeft);
-        joystickDrive.b().whileTrue(aprilFollowRight);
-
-        joystickOperater.a().whileTrue(ascendL1);
-        joystickOperater.b().whileTrue(ascendL2);
-        joystickOperater.x().whileTrue(ascendL3);
-        joystickOperater.y().whileTrue(ascendL4);
     }
     
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return null;
     }
 }
