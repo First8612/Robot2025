@@ -10,9 +10,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeGrabber extends SubsystemBase {
-  public TalonFX grabMotor = new TalonFX(301);
+  public TalonFX grabMotor = new TalonFX(21);
   /** Creates a new AlgeaGrabber. */
-  public AlgaeGrabber() {}
+  public AlgaeGrabber() {
+
+  }
+
+  public void runAlgaeIn(double speed) {
+    if(Math.abs(speed) >= 0.1) {
+      grabMotor.set(speed);
+    }
+  }
 
   /**
    * Example command factory method.

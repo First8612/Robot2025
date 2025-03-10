@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -28,10 +29,12 @@ public class Ascender extends SubsystemBase {
   public TalonFX pivotMotorRight = new TalonFX(10);
   public TalonFX pivotMotorLeft = new TalonFX(11);
   public static CANrange caNrange = new CANrange(50);
-  
 
-  public PIDController ascendController = new PIDController(0.05, 0, 0.005);
+
+
+  public PIDController ascendController = new PIDController(0.025, 0, 0.005);
   public PIDController wristController = new PIDController(0.25, 0, 0);
+  public PIDController pivotController = new PIDController(0.1,0,0);
 
   public static double getRange() {
     return caNrange.getDistance().getValueAsDouble();
@@ -39,8 +42,8 @@ public class Ascender extends SubsystemBase {
   public TalonFXConfiguration talonConfig = new TalonFXConfiguration();
   public CurrentLimitsConfigs ascentCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
-  
-  double preHeights[][] = {{0,0,0},{1,15,11},{1,18,37.1},{1,0,16},{1,0,20},{1,0,0}};
+  //{Elevator Angle,Elevator Height,Wrist Angle}
+  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{0,15,11},/*L3*/{0,17,37.1},/*L4*/{0,48,35},/*L2*/{0,0,36},/*L4 Tip*/{0,48,45}, /*Climbing*/{30,0,35}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -56,17 +59,29 @@ public class Ascender extends SubsystemBase {
     ascendMotor.getConfigurator().apply(ascentCurrentLimit);
     pivotMotorLeft.getConfigurator().apply(ascentConfig);
     pivotMotorRight.getConfigurator().apply(ascentConfig);
-  }
 
+    //wristMotor.setPosition(0);
+  }
+  /* 
+  public void setPivot(double position) {
+    pivotController.setSetpoint(position);
+    if(position == 0) {
+      goToPivotPosition = defaultPivotPosition;
+    } else {
+      goToPivotPosition = 0;
+    }
+  }
+  */
   /**
    * Example command factory method.
    *
    * @return a command
    */
   public void goToPosition(int position) {
-    pivotRotations = preHeights[position][0];
+    pivotController.setSetpoint(preHeights[position][0]);
     ascendController.setSetpoint(preHeights[position][1]);
     wristController.setSetpoint(preHeights[position][2]);
+    System.out.println(position);
   }
 
   /**
@@ -78,6 +93,7 @@ public class Ascender extends SubsystemBase {
     // Query some boolean state, such as a digital sensor.
     return false;
   }
+
   double alpha = 0.1;
   double filteredDist = 0;
   public double noNoise() {
@@ -90,19 +106,29 @@ public class Ascender extends SubsystemBase {
     // This method will be called once per scheduler run
     var ascendSpeed = ascendController.calculate(noNoise());
     var wristSpeed = wristController.calculate(wristMotor.getPosition().getValueAsDouble());
+    var pivotSpeed = pivotController.calculate((pivotMotorLeft.getPosition().getValueAsDouble() - pivotMotorRight.getPosition().getValueAsDouble()) / 2);
     SmartDashboard.putNumber("Ascender ascendSpeed Before Clamp", ascendSpeed);
-    ascendSpeed = MathUtil.clamp(ascendSpeed, -0.5, 0.5);
-    wristSpeed = MathUtil.clamp(wristSpeed, -0.1, 0.1);
+    ascendSpeed = MathUtil.clamp(ascendSpeed, -0.25, 0.5);
+    wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
+    pivotSpeed = MathUtil.clamp(pivotSpeed, -0.35, 0.25);
+    
 
     ascendMotor.set(ascendSpeed);
     wristMotor.set(wristSpeed);
+    pivotMotorLeft.set(-pivotSpeed);
+    pivotMotorRight.set(pivotSpeed);
+
     SmartDashboard.putNumber("WristPosition", wristMotor.getPosition().getValueAsDouble());
     
 
     SmartDashboard.putNumber("Ascender ascendSpeed After Clamp", ascendSpeed);
     SmartDashboard.putNumber("Ascender Error", ascendController.getError() * 1.621);
+    SmartDashboard.putNumber("Ascend Encoder", ascendMotor.getPosition().getValueAsDouble()*1.62);
     SmartDashboard.putNumber("CanRange Output", caNrange.getDistance().getValueAsDouble()*39.3701);
     SmartDashboard.putNumber("Filtered CanRange", filteredDist);
+    SmartDashboard.putNumber("Pivot Left", pivotMotorLeft.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Pivot Right", pivotMotorRight.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Pivot Average", (pivotMotorLeft.getPosition().getValueAsDouble() - pivotMotorRight.getPosition().getValueAsDouble()) / 2);
   }
 
   @Override

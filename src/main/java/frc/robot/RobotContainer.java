@@ -35,8 +35,10 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.Canrange;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.JankyDumper;
 import frc.robot.subsystems.StabbyThingy;
+import frc.robot.subsystems.AlgaeExtender;
+import frc.robot.subsystems.AlgaeGrabber;
+//import frc.robot.subsystems.Pivot;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -52,7 +54,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystickDrive = new CommandXboxController(0);
-    private final CommandXboxController joystickOperater = new CommandXboxController(1);
+    private final CommandXboxController joystickOperator = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     //TEST BOT
@@ -61,12 +63,15 @@ public class RobotContainer {
     private final Canrange canRange = new Canrange();
     private final Ascender ascender = new Ascender();
     private final StabbyThingy stabber = new StabbyThingy();
+    private final AlgaeExtender extender = new AlgaeExtender();
+    private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
 
     private final SendableChooser<Command> autoChooser;
     CANdle candle = new CANdle(40);
-    private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
+   // private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
     private final IWannaDumpSomeCoral aprilFollowLeft = new IWannaDumpSomeCoral(drivetrain, true);
     private final IWannaDumpSomeCoral aprilFollowRight = new IWannaDumpSomeCoral(drivetrain, false);
+
 
     public RobotContainer() {
         //commands for pathplanner
@@ -126,22 +131,32 @@ public class RobotContainer {
         //joystickDrive.x().whileTrue(aprilFollowLeft);
         joystickDrive.b().whileTrue(aprilFollowRight);
 
-        joystickOperater.a().onTrue(new InstantCommand(() -> ascender.goToPosition(1), ascender));
-        joystickOperater.b().onTrue(new InstantCommand(() -> ascender.goToPosition(2), ascender));
-        joystickOperater.x().onTrue(new InstantCommand(() -> ascender.goToPosition(3), ascender));
-        joystickOperater.y().onTrue(new InstantCommand(() -> ascender.goToPosition(4), ascender));
-        joystickOperater.rightTrigger().whileTrue(new RunCommand(() -> stabber.inFork(joystickOperater.getRightTriggerAxis() / 10)));
-        joystickOperater.leftTrigger().whileTrue(new RunCommand(() -> stabber.inFork(-joystickOperater.getLeftTriggerAxis() / 10)));
-        if(!joystickOperater.leftTrigger().getAsBoolean()) {
-            joystickOperater.rightTrigger().whileFalse(new RunCommand(() -> stabber.inFork(0)));
-        }
+        joystickOperator.povRight().onTrue(new InstantCommand(() -> ascender.goToPosition(0), ascender));
+        joystickOperator.povDown().onTrue(new InstantCommand(() -> ascender.goToPosition(4), ascender));
+        joystickOperator.povLeft().onTrue(new InstantCommand(() -> ascender.goToPosition(2), ascender));
+        joystickOperator.povUp().onTrue(new InstantCommand(() -> ascender.goToPosition(3), ascender));
+        joystickOperator.y().onTrue(new InstantCommand(() -> ascender.goToPosition(1), ascender));
+        //joystickOperator.a().onTrue(new InstantCommand(() -> ascender.goToPosition(5), ascender));
+        joystickOperator.rightBumper().onTrue(new InstantCommand(() -> ascender.goToPosition(6), ascender));
+
+        joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
+        joystickOperator.leftTrigger().onTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(joystickOperator.getLeftTriggerAxis()/2)));
+        joystickOperator.rightTrigger().onTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/2)));
+        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.05, true)));
+
+        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.5, true)));
+        joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, stabber.overrider)));
+
+        stabber.inFork(0.1, false);
     }
 
     public void autonomousInit() {
         ascender.goToPosition(0);
+        extender.setAlgae(0);
     }
     public void teleopInit() {
         ascender.goToPosition(0);
+        extender.setAlgae(0);
     }
 
     
