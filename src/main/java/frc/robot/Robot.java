@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,13 +21,18 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
-
+    PortForwarder.add(5800, "photonvision.local", 5800);
+    PortForwarder.add(5800, "photonvision1.local", 5800);
+    PortForwarder.add(5800, "photonvision2.local", 5800);
+    
     // SmartDashboard.putData("PDP", new PowerDistribution());
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    m_robotContainer.robotPeriodic();
 
     SmartDashboard.putNumberArray("LHPose", LimelightHelpers.getBotPose_wpiBlue("limelight"));
   }
