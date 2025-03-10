@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,6 +37,7 @@ public class StabbyThingy extends SubsystemBase {
   double alpha = 0.1;
   double filteredDist = 0;
   public double noNoise() {
+
     double rawDist = forkDetector.getDistance().getValueAsDouble();
     filteredDist = alpha * rawDist + (1 - alpha) * filteredDist;
     return filteredDist;

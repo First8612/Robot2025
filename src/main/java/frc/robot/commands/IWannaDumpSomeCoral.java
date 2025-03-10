@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class IWannaDumpSomeCoral extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   CommandSwerveDrivetrain drive;
-  double offset = 0;
+  boolean offsetLeft = true;
   /**
    * Creates a new ExampleCommand.
    *
@@ -33,9 +33,9 @@ public class IWannaDumpSomeCoral extends Command {
     this.drive = drive;
     // Use addRequirements() here to declare subsystem dependencies.
     if(left == true) {
-      offset = -0.4;
+      offsetLeft = false;
     } else {
-      offset = 0.4;
+      offsetLeft = true;
     }
     addRequirements(drive);
   }
@@ -66,19 +66,28 @@ public class IWannaDumpSomeCoral extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Pose3d targetPose = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
-    Translation3d targetTrans = targetPose.getTranslation();
-    Rotation3d targetRot = targetPose.getRotation();
+    Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("right");
+    Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("left");
+    Translation3d targetTrans = targetPoseLeft.getTranslation();
+    if(!offsetLeft) {
+      targetTrans = targetPoseRight.getTranslation();
+    }
+    
+    Rotation3d targetRot = targetPoseLeft.getRotation();
+    if(!offsetLeft) {
+      targetRot = targetPoseRight.getRotation();
+    }
+    System.out.println(targetPoseRight);
     SmartDashboard.putNumber("Target T X",targetTrans.getX());
     SmartDashboard.putNumber("Target T Y",targetTrans.getY());
     SmartDashboard.putNumber("Target T Z",targetTrans.getZ());
     SmartDashboard.putNumber("Target R X",targetRot.getX());
     SmartDashboard.putNumber("Target R Y",targetRot.getY());
     SmartDashboard.putNumber("Target R Z",targetRot.getZ());
-    double xError = targetTrans.getX() + offset;
+    double xError = targetTrans.getX();
     double yawError = targetRot.getY();
     double zError = targetTrans.getZ();
-    stage = 2;
+    stage = 0;
     if(stage == 0) {
       //move to center and turn
       var tVelocity = turny.calculate(xError);
@@ -87,7 +96,7 @@ public class IWannaDumpSomeCoral extends Command {
       SmartDashboard.putNumber("Moving",yVelocity);
       tVelocity = restraint_wehavenone.calculate(tVelocity);
       yVelocity = leftRightLimit.calculate(yVelocity);
-      drive.setControl(IWannaRobotRequest.withVelocityX(yVelocity).withRotationalRate(tVelocity));
+      drive.setControl(IWannaRobotRequest.withVelocityY(yVelocity).withRotationalRate(tVelocity));
       if(Math.abs(yawError) + Math.abs(xError) <= 0.05) {
         stage += 1;
       }
@@ -98,30 +107,11 @@ public class IWannaDumpSomeCoral extends Command {
       //move forward
       var xVelocity = forward.calculate(zError);
       xVelocity = forwardLimit.calculate(xVelocity);
-      drive.setControl(IWannaRobotRequest.withVelocityY(xVelocity));
+      drive.setControl(IWannaRobotRequest.withVelocityX(xVelocity));
       System.out.println(zError);
       if(Math.abs(zError) <= 0.02) {
         stage += 1;
       }
-    }
-    else if(stage == 2) {
-      if(offsetFieldX == 0 && offsetFieldY == 0) {
-        aprilAngle = drive.getState().Pose.getRotation().getRadians();
-        offsetFieldX = drive.getState().Pose.getX() + Math.sin(aprilAngle) * offset;
-        offsetFieldY = drive.getState().Pose.getY() - Math.cos(aprilAngle) * offset;
-      }
-      var offXError = offsetFieldX - drive.getState().Pose.getX();
-      var offYError = offsetFieldY - drive.getState().Pose.getY();
-      var offVelocityX = offXPID.calculate(offXError);
-      var offVelocityY = offXPID.calculate(offYError);
-      offVelocityX = offXLimit.calculate(offVelocityX);
-      offVelocityY = offYLimit.calculate(offVelocityY);
-      drive.setControl(IWannaFieldRequest.withVelocityX(-offVelocityX).withVelocityY(-offVelocityY));
-      if(Math.abs(offXError) <= 0.0002 && Math.abs(offYError) <= 0.0002) {
-        stage += 1;
-      }
-      
-      //System.out.println(offYError);
     }
     System.out.println(stage);
 
@@ -136,7 +126,7 @@ public class IWannaDumpSomeCoral extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return stage == 3;
+    return stage == 2;
     //return false;
   }
 }

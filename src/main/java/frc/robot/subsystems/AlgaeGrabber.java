@@ -17,7 +17,7 @@ public class AlgaeGrabber extends SubsystemBase {
   }
 
   public void runAlgaeIn(double speed) {
-    if(Math.abs(speed) >= 0.1) {
+    if(Math.abs(speed) >= 0.1 || speed == 0) {
       grabMotor.set(speed);
     }
   }

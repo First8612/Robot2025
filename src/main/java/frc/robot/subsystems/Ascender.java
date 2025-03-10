@@ -43,7 +43,7 @@ public class Ascender extends SubsystemBase {
   public CurrentLimitsConfigs ascentCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
   //{Elevator Angle,Elevator Height,Wrist Angle}
-  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{0,15,11},/*L3*/{0,17,37.1},/*L4*/{0,48,35},/*L2*/{0,0,36},/*L4 Tip*/{0,48,45}, /*Climbing*/{30,0,35}};
+  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{0,15,11},/*L3*/{0,17,37.1},/*L4*/{0,48,35},/*L2*/{0,0,36},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -83,6 +83,10 @@ public class Ascender extends SubsystemBase {
     wristController.setSetpoint(preHeights[position][2]);
     System.out.println(position);
   }
+  public void pivotControl(double addPose) {
+    pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
+    System.out.println("hi");
+  }
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
@@ -110,13 +114,13 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putNumber("Ascender ascendSpeed Before Clamp", ascendSpeed);
     ascendSpeed = MathUtil.clamp(ascendSpeed, -0.25, 0.5);
     wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
-    pivotSpeed = MathUtil.clamp(pivotSpeed, -0.35, 0.25);
+    pivotSpeed = MathUtil.clamp(pivotSpeed, -2, 2);
     
 
     ascendMotor.set(ascendSpeed);
     wristMotor.set(wristSpeed);
-    pivotMotorLeft.set(-pivotSpeed);
-    pivotMotorRight.set(pivotSpeed);
+    pivotMotorLeft.set(pivotSpeed);
+    pivotMotorRight.set(-pivotSpeed);
 
     SmartDashboard.putNumber("WristPosition", wristMotor.getPosition().getValueAsDouble());
     
@@ -127,8 +131,9 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putNumber("CanRange Output", caNrange.getDistance().getValueAsDouble()*39.3701);
     SmartDashboard.putNumber("Filtered CanRange", filteredDist);
     SmartDashboard.putNumber("Pivot Left", pivotMotorLeft.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Pivot Right", pivotMotorRight.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Pivot Right", -pivotMotorRight.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Pivot Average", (pivotMotorLeft.getPosition().getValueAsDouble() - pivotMotorRight.getPosition().getValueAsDouble()) / 2);
+    SmartDashboard.putNumber("Pivot Error", pivotController.getError());
   }
 
   @Override

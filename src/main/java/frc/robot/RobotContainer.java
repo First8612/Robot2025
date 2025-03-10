@@ -33,7 +33,6 @@ import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Ascender;
-import frc.robot.subsystems.Canrange;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.StabbyThingy;
 import frc.robot.subsystems.AlgaeExtender;
@@ -60,7 +59,6 @@ public class RobotContainer {
     //TEST BOT
     // private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
     // private final JankyDumper jankyDumper = new JankyDumper();
-    private final Canrange canRange = new Canrange();
     private final Ascender ascender = new Ascender();
     private final StabbyThingy stabber = new StabbyThingy();
     private final AlgaeExtender extender = new AlgaeExtender();
@@ -128,7 +126,7 @@ public class RobotContainer {
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        //joystickDrive.x().whileTrue(aprilFollowLeft);
+        joystickDrive.x().whileTrue(aprilFollowLeft);
         joystickDrive.b().whileTrue(aprilFollowRight);
 
         joystickOperator.povRight().onTrue(new InstantCommand(() -> ascender.goToPosition(0), ascender));
@@ -136,16 +134,21 @@ public class RobotContainer {
         joystickOperator.povLeft().onTrue(new InstantCommand(() -> ascender.goToPosition(2), ascender));
         joystickOperator.povUp().onTrue(new InstantCommand(() -> ascender.goToPosition(3), ascender));
         joystickOperator.y().onTrue(new InstantCommand(() -> ascender.goToPosition(1), ascender));
-        //joystickOperator.a().onTrue(new InstantCommand(() -> ascender.goToPosition(5), ascender));
         joystickOperator.rightBumper().onTrue(new InstantCommand(() -> ascender.goToPosition(6), ascender));
 
         joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
-        joystickOperator.leftTrigger().onTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(joystickOperator.getLeftTriggerAxis()/2)));
-        joystickOperator.rightTrigger().onTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/2)));
-        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.05, true)));
 
+        joystickOperator.leftTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(joystickOperator.getLeftTriggerAxis()/2)));
+        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/2)));
+        joystickOperator.rightTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
+        joystickOperator.leftTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
+        joystickOperator.rightBumper().onTrue(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
+
+        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.05, true)));
+        joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
         joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.5, true)));
         joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, stabber.overrider)));
+
 
         stabber.inFork(0.1, false);
     }
@@ -158,7 +161,9 @@ public class RobotContainer {
         ascender.goToPosition(0);
         extender.setAlgae(0);
     }
-
+    public void teleopPeriodic() {
+        ascender.pivotControl(joystickOperator.getRightY() / 5);
+    }
     
 
     public Command getAutonomousCommand() {
