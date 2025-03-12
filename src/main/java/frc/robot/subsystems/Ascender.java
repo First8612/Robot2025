@@ -4,10 +4,12 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.CANdi;
@@ -16,9 +18,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 
 
 public class Ascender extends SubsystemBase {
@@ -26,8 +32,8 @@ public class Ascender extends SubsystemBase {
   //needs ID!!!
   private TalonFX ascendMotor = new TalonFX(1);
   public TalonFX wristMotor = new TalonFX(2);
-  public TalonFX pivotMotorRight = new TalonFX(10);
-  public TalonFX pivotMotorLeft = new TalonFX(11);
+  public TalonFX pivotMotorRight = new TalonFX(60);
+  public TalonFX pivotMotorLeft = new TalonFX(61);
   public static CANrange caNrange = new CANrange(50);
 
 
@@ -36,11 +42,14 @@ public class Ascender extends SubsystemBase {
   public PIDController wristController = new PIDController(0.25, 0, 0);
   public PIDController pivotController = new PIDController(0.1,0,0);
 
+  public Follower pivotFollower = new Follower(61, true);
+
   public static double getRange() {
     return caNrange.getDistance().getValueAsDouble();
   }
   public TalonFXConfiguration talonConfig = new TalonFXConfiguration();
   public CurrentLimitsConfigs ascentCurrentLimit = new CurrentLimitsConfigs();
+  public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
   //{Elevator Angle,Elevator Height,Wrist Angle}
   double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{0,15,11},/*L3*/{0,17,37.1},/*L4*/{0,48,35},/*L2*/{0,0,36},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35}};
@@ -51,15 +60,22 @@ public class Ascender extends SubsystemBase {
   public Ascender() {
     ascentCurrentLimit.SupplyCurrentLimit = 20;
     ascentCurrentLimit.SupplyCurrentLimitEnable = true;
+    pivotCurrentLimit.SupplyCurrentLimit = 30;
+    pivotCurrentLimit.SupplyCurrentLimitEnable = true;
     ascentConfig.NeutralMode = NeutralModeValue.Brake;
+    //pivotMotorRight.setControl();
     //ascendMotor.setPosition(0);
     //ascendMotor.curre
     //ascendMotorRight.MasterID(100).OpposeMasterDirection(false);
     ascendMotor.getConfigurator().apply(ascentConfig);
     ascendMotor.getConfigurator().apply(ascentCurrentLimit);
     pivotMotorLeft.getConfigurator().apply(ascentConfig);
+    pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
     pivotMotorRight.getConfigurator().apply(ascentConfig);
+    pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
 
+    pivotMotorRight.setControl(pivotFollower);
+    
     //wristMotor.setPosition(0);
   }
   /* 
@@ -85,7 +101,6 @@ public class Ascender extends SubsystemBase {
   }
   public void pivotControl(double addPose) {
     pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
-    System.out.println("hi");
   }
 
   /**
@@ -110,17 +125,16 @@ public class Ascender extends SubsystemBase {
     // This method will be called once per scheduler run
     var ascendSpeed = ascendController.calculate(noNoise());
     var wristSpeed = wristController.calculate(wristMotor.getPosition().getValueAsDouble());
-    var pivotSpeed = pivotController.calculate((pivotMotorLeft.getPosition().getValueAsDouble() - pivotMotorRight.getPosition().getValueAsDouble()) / 2);
+    var pivotSpeed = pivotController.calculate((pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / 2);
     SmartDashboard.putNumber("Ascender ascendSpeed Before Clamp", ascendSpeed);
     ascendSpeed = MathUtil.clamp(ascendSpeed, -0.25, 0.5);
     wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
-    pivotSpeed = MathUtil.clamp(pivotSpeed, -2, 2);
+    pivotSpeed = MathUtil.clamp(pivotSpeed, -5, 5);
     
 
     ascendMotor.set(ascendSpeed);
     wristMotor.set(wristSpeed);
     pivotMotorLeft.set(pivotSpeed);
-    pivotMotorRight.set(-pivotSpeed);
 
     SmartDashboard.putNumber("WristPosition", wristMotor.getPosition().getValueAsDouble());
     
@@ -131,9 +145,24 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putNumber("CanRange Output", caNrange.getDistance().getValueAsDouble()*39.3701);
     SmartDashboard.putNumber("Filtered CanRange", filteredDist);
     SmartDashboard.putNumber("Pivot Left", pivotMotorLeft.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Pivot Right", -pivotMotorRight.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Pivot Average", (pivotMotorLeft.getPosition().getValueAsDouble() - pivotMotorRight.getPosition().getValueAsDouble()) / 2);
+    SmartDashboard.putNumber("Pivot Right", pivotMotorRight.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Pivot Average", (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / 2);
     SmartDashboard.putNumber("Pivot Error", pivotController.getError());
+    SmartDashboard.putNumber("Pivot Left Current", pivotMotorLeft.getSupplyCurrent().getValueAsDouble());
+    SmartDashboard.putNumber("Pivot Right Current", pivotMotorRight.getSupplyCurrent().getValueAsDouble());
+
+
+    // Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-right");
+    // Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-left");
+    // Translation3d targetTrans = targetPoseLeft.getTranslation();
+    
+    // Rotation3d targetRot = targetPoseLeft.getRotation();
+    // SmartDashboard.putNumber("Target T X",targetTrans.getX());
+    // SmartDashboard.putNumber("Target T Y",targetTrans.getY());
+    // SmartDashboard.putNumber("Target T Z",targetTrans.getZ());
+    // SmartDashboard.putNumber("Target R X",targetRot.getX());
+    // SmartDashboard.putNumber("Target R Y",targetRot.getY());
+    // SmartDashboard.putNumber("Target R Z",targetRot.getZ());
   }
 
   @Override

@@ -126,8 +126,8 @@ public class RobotContainer {
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystickDrive.x().whileTrue(aprilFollowLeft);
-        joystickDrive.b().whileTrue(aprilFollowRight);
+        joystickDrive.x().onTrue(aprilFollowLeft);
+        joystickDrive.b().onTrue(aprilFollowRight);
 
         joystickOperator.povRight().onTrue(new InstantCommand(() -> ascender.goToPosition(0), ascender));
         joystickOperator.povDown().onTrue(new InstantCommand(() -> ascender.goToPosition(4), ascender));
@@ -160,9 +160,11 @@ public class RobotContainer {
     public void teleopInit() {
         ascender.goToPosition(0);
         extender.setAlgae(0);
+        ascender.pivotMotorLeft.setPosition(0);
+        ascender.pivotMotorRight.setPosition(0);
     }
     public void teleopPeriodic() {
-        ascender.pivotControl(joystickOperator.getRightY() / 5);
+        ascender.pivotControl(joystickOperator.getRightY());
     }
     
 

@@ -38,6 +38,7 @@ public class IWannaDumpSomeCoral extends Command {
       offsetLeft = true;
     }
     addRequirements(drive);
+    stage = 0;
   }
   private final SwerveRequest.FieldCentric IWannaFieldRequest = new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -53,7 +54,7 @@ public class IWannaDumpSomeCoral extends Command {
   SlewRateLimiter forwardLimit = new SlewRateLimiter(3);
   SlewRateLimiter offXLimit = new SlewRateLimiter(3);
   SlewRateLimiter offYLimit = new SlewRateLimiter(3);
-  int stage = 2;
+  int stage = 0;
   double aprilAngle = 0;
   double offsetFieldX = 0;
   double offsetFieldY = 0;
@@ -66,8 +67,8 @@ public class IWannaDumpSomeCoral extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("right");
-    Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("left");
+    Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-right");
+    Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-left");
     Translation3d targetTrans = targetPoseLeft.getTranslation();
     if(!offsetLeft) {
       targetTrans = targetPoseRight.getTranslation();
@@ -86,8 +87,11 @@ public class IWannaDumpSomeCoral extends Command {
     SmartDashboard.putNumber("Target R Z",targetRot.getZ());
     double xError = targetTrans.getX();
     double yawError = targetRot.getY();
-    double zError = targetTrans.getZ();
-    stage = 0;
+    double zError = targetTrans.getZ() - 0.6;
+    SmartDashboard.putNumber("xError", xError);
+    SmartDashboard.putNumber("yawError", yawError);
+    SmartDashboard.putNumber("zError", zError);
+    SmartDashboard.putNumber("Stage 1 Error", (Math.abs(yawError) + Math.abs(xError)));
     if(stage == 0) {
       //move to center and turn
       var tVelocity = turny.calculate(xError);
@@ -107,7 +111,7 @@ public class IWannaDumpSomeCoral extends Command {
       //move forward
       var xVelocity = forward.calculate(zError);
       xVelocity = forwardLimit.calculate(xVelocity);
-      drive.setControl(IWannaRobotRequest.withVelocityX(xVelocity));
+      drive.setControl(IWannaRobotRequest.withVelocityX(-xVelocity));
       System.out.println(zError);
       if(Math.abs(zError) <= 0.02) {
         stage += 1;
