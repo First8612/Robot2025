@@ -144,9 +144,9 @@ public class RobotContainer {
         joystickOperator.leftTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
         joystickOperator.rightBumper().onTrue(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
 
-        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.05, true)));
+        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.1, true)));
         joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
-        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.5, true)));
+        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.25, true)));
         joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, stabber.overrider)));
 
 
@@ -154,11 +154,11 @@ public class RobotContainer {
     }
 
     public void autonomousInit() {
-        ascender.goToPosition(0);
+        //ascender.goToPosition(0);
         extender.setAlgae(0);
     }
     public void teleopInit() {
-        ascender.goToPosition(0);
+        //ascender.goToPosition(0);
         extender.setAlgae(0);
         ascender.pivotMotorLeft.setPosition(0);
         ascender.pivotMotorRight.setPosition(0);
