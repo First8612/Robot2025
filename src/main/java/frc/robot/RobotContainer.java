@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,9 +41,13 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.PhotonVision.PhotonVisionConstants;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import frc.robot.PhotonVision.PhotonVisionConstants;
+import frc.robot.PhotonVision.AprilTagThing;
+import frc.robot.PhotonVision.*;
+import frc.robot.PhotonVision;
+//import frc.robot.AprilTagThing;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -60,9 +65,15 @@ public class RobotContainer {
 
     private final CommandXboxController joystickDrive = new CommandXboxController(0);
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    //private final PhotonVision aprilTagThing = new PhotonVision.AprilTagThing.april();
+    
+
+    //private final PhotonVision.AprilTagThing.@aprilTagThing(null)();
 
     private final PhotonVision photon1Vision = new PhotonVision(PhotonVisionConstants.camera1, PhotonVisionConstants.camera1Transform);
     private final PhotonVision photon2Vision = new PhotonVision(PhotonVisionConstants.camera2, PhotonVisionConstants.camera2Transform);
+    
+    //PhotonVision.AprilTagThing aprilTagThing = photon1Vision.new ApriltagThing();
 
     //creates a PhotonVision list for use when adding the vision measurement
     public PhotonVision[] photonVision =  new PhotonVision[]{photon1Vision, photon2Vision};
@@ -70,6 +81,7 @@ public class RobotContainer {
     public ArrayList<Pose2d> poseList = new ArrayList<>();
 
     private final Field2d field = new Field2d();
+    
 
     public RobotContainer() {
         configureBindings();
@@ -102,7 +114,15 @@ public class RobotContainer {
         joystickDrive.b().onTrue(new InstantCommand(() -> {
             drivetrain.resetFieldOrientation();
         }));
+        joystickDrive.rightTrigger().onTrue(
 
+            new InstantCommand(() -> 
+                //new AprilTagThing(true)
+                new AprilTagThing(true)
+                //AprilTagThing(true)
+            )
+
+        );
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
