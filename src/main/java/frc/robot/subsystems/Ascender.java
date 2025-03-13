@@ -21,6 +21,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,7 +39,7 @@ public class Ascender extends SubsystemBase {
   public TalonFX pivotMotorLeft = new TalonFX(61);
   public static CANrange caNrange = new CANrange(50);
 
-
+  public DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(1);
 
   public PIDController ascendController = new PIDController(0.025, 0, 0.005);
   public PIDController wristController = new PIDController(0.25, 0, 0);
@@ -52,7 +55,7 @@ public class Ascender extends SubsystemBase {
   public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
   //{Elevator Angle,Elevator Height,Wrist Angle}
-  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{0,15,11},/*L3*/{0,17,37.1},/*L4*/{0,48,35},/*L2*/{0,0,36},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35}};
+  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{-40,15.2,7.2},/*L3*/{0,18.7,38},/*L4*/{-30,48,36},/*L2*/{0,0,39},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -69,12 +72,14 @@ public class Ascender extends SubsystemBase {
     //ascendMotorRight.MasterID(100).OpposeMasterDirection(false);
     ascendMotor.getConfigurator().apply(ascentConfig);
     ascendMotor.getConfigurator().apply(ascentCurrentLimit);
-    pivotMotorLeft.getConfigurator().apply(ascentConfig);
+    //pivotMotorLeft.getConfigurator().apply(ascentConfig);
     pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
-    pivotMotorRight.getConfigurator().apply(ascentConfig);
+    //pivotMotorRight.getConfigurator().apply(ascentConfig);
     pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
 
     pivotMotorRight.setControl(pivotFollower);
+
+    pivotEncoder.setDutyCycleRange(1.0/1024.0, 1023.0/1024.0);
     
     //wristMotor.setPosition(0);
   }
@@ -150,7 +155,8 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putNumber("Pivot Error", pivotController.getError());
     SmartDashboard.putNumber("Pivot Left Current", pivotMotorLeft.getSupplyCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Pivot Right Current", pivotMotorRight.getSupplyCurrent().getValueAsDouble());
-
+    SmartDashboard.putNumber("Pivot Encoder Value", pivotEncoder.get());
+    SmartDashboard.putBoolean("Pivot Encoder Connected", pivotEncoder.isConnected());
 
     // Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-right");
     // Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-left");
