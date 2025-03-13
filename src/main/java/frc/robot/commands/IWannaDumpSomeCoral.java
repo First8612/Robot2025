@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -87,7 +88,7 @@ public class IWannaDumpSomeCoral extends Command {
     SmartDashboard.putNumber("Target R Z",targetRot.getZ());
     double xError = targetTrans.getX();
     double yawError = targetRot.getY();
-    double zError = targetTrans.getZ() - 0.6;
+    double zError = targetTrans.getZ() - 0.3;
     SmartDashboard.putNumber("xError", xError);
     SmartDashboard.putNumber("yawError", yawError);
     SmartDashboard.putNumber("zError", zError);
@@ -100,7 +101,10 @@ public class IWannaDumpSomeCoral extends Command {
       SmartDashboard.putNumber("Moving",yVelocity);
       tVelocity = restraint_wehavenone.calculate(tVelocity);
       yVelocity = leftRightLimit.calculate(yVelocity);
-      drive.setControl(IWannaRobotRequest.withVelocityY(yVelocity).withRotationalRate(tVelocity));
+      //Slight Forward
+      var xVelocity = forward.calculate(zError);
+      xVelocity = MathUtil.clamp(forwardLimit.calculate(xVelocity), -0.1, 0.1);
+      drive.setControl(IWannaRobotRequest.withVelocityY(yVelocity).withRotationalRate(tVelocity).withVelocityX(xVelocity));
       if(Math.abs(yawError) + Math.abs(xError) <= 0.05) {
         stage += 1;
       }
@@ -111,7 +115,12 @@ public class IWannaDumpSomeCoral extends Command {
       //move forward
       var xVelocity = forward.calculate(zError);
       xVelocity = forwardLimit.calculate(xVelocity);
-      drive.setControl(IWannaRobotRequest.withVelocityX(-xVelocity));
+      //Slight Centering
+      var tVelocity = turny.calculate(xError);
+      var yVelocity = leftright.calculate(-yawError);
+      tVelocity = MathUtil.clamp(restraint_wehavenone.calculate(tVelocity), -0.1, 0.1);
+      yVelocity = MathUtil.clamp(leftRightLimit.calculate(yVelocity), -0.1, 0.1);
+      drive.setControl(IWannaRobotRequest.withVelocityX(-xVelocity).withVelocityY(yVelocity).withRotationalRate(tVelocity));
       System.out.println(zError);
       if(Math.abs(zError) <= 0.02) {
         stage += 1;
