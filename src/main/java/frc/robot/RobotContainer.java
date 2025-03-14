@@ -139,8 +139,8 @@ public class RobotContainer {
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystickDrive.x().onTrue(aprilFollowLeft);
-        joystickDrive.b().onTrue(aprilFollowRight);
+        joystickDrive.x().whileTrue(aprilFollowLeft);
+        joystickDrive.b().whileTrue(aprilFollowRight);
 
         joystickOperator.povRight().onTrue(new InstantCommand(() -> ascender.goToPosition(0), ascender));
         joystickOperator.povDown().onTrue(new InstantCommand(() -> ascender.goToPosition(4), ascender));
@@ -153,14 +153,14 @@ public class RobotContainer {
         joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
 
         joystickOperator.leftTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(joystickOperator.getLeftTriggerAxis()/2)));
-        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/2)));
+        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/4)));
         joystickOperator.rightTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
         joystickOperator.leftTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
         joystickOperator.rightBumper().onTrue(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
 
         joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.2, true)));
         joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
-        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.25, true)));
+        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.2, true)));
         joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, stabber.overrider)));
 
 

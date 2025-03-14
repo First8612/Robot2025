@@ -45,8 +45,8 @@ public class IWannaDumpSomeCoral extends Command {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
   private final SwerveRequest.RobotCentric IWannaRobotRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-  PIDController leftright = new PIDController(2,0,0);
-  PIDController turny = new PIDController(2,0,0);
+  PIDController leftright = new PIDController(3,0,0);
+  PIDController turny = new PIDController(3,0,0);
   PIDController forward = new PIDController(1,0,0);
   PIDController offXPID = new PIDController(1,0.5,0);
   PIDController offYPID = new PIDController(1,0.5,0);
@@ -104,7 +104,7 @@ public class IWannaDumpSomeCoral extends Command {
       //Slight Forward
       var xVelocity = forward.calculate(zError);
       xVelocity = MathUtil.clamp(forwardLimit.calculate(xVelocity), -0.1, 0.1);
-      drive.setControl(IWannaRobotRequest.withVelocityY(yVelocity).withRotationalRate(tVelocity).withVelocityX(xVelocity));
+      drive.setControl(IWannaRobotRequest.withVelocityY(yVelocity).withRotationalRate(tVelocity).withVelocityX(-xVelocity));
       if(Math.abs(yawError) + Math.abs(xError) <= 0.05) {
         stage += 1;
       }
@@ -118,8 +118,8 @@ public class IWannaDumpSomeCoral extends Command {
       //Slight Centering
       var tVelocity = turny.calculate(xError);
       var yVelocity = leftright.calculate(-yawError);
-      tVelocity = MathUtil.clamp(restraint_wehavenone.calculate(tVelocity), -0.1, 0.1);
-      yVelocity = MathUtil.clamp(leftRightLimit.calculate(yVelocity), -0.1, 0.1);
+      tVelocity = MathUtil.clamp(restraint_wehavenone.calculate(tVelocity), -0.5, 0.5);
+      yVelocity = MathUtil.clamp(leftRightLimit.calculate(yVelocity), -0.5, 0.5);
       drive.setControl(IWannaRobotRequest.withVelocityX(-xVelocity).withVelocityY(yVelocity).withRotationalRate(tVelocity));
       System.out.println(zError);
       if(Math.abs(zError) <= 0.02) {

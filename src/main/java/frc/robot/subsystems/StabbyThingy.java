@@ -4,8 +4,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -18,8 +20,11 @@ public class StabbyThingy extends SubsystemBase {
   public CANrange forkDetector = new CANrange(51);
   /** Creates a new StabbyThingy. */
   public boolean overrider = false;
+  public MotorOutputConfigs forkConfig = new MotorOutputConfigs();
   public StabbyThingy() {
+    forkConfig.NeutralMode = NeutralModeValue.Brake;
 
+    forkMotor.getConfigurator().apply(forkConfig);
   }
   /**
    * Example command factory method.
@@ -34,7 +39,7 @@ public class StabbyThingy extends SubsystemBase {
           /* one-time action goes here */
         });
   }
-  double alpha = 0.1;
+  double alpha = 0.5;
   double filteredDist = 0;
   public double noNoise() {
 

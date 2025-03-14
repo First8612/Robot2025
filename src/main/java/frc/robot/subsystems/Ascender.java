@@ -45,7 +45,7 @@ public class Ascender extends SubsystemBase {
   public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
   //{Elevator Angle,Elevator Height,Wrist Angle}
-  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{-40,15.2,7.2},/*L3*/{0,18.7,38},/*L4*/{-30,48,36},/*L2*/{0,0,39},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35},/*L1*/{0,13,0}};
+  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{-43.7,12.5,10.2},/*L3*/{0,17,46},/*L4*/{-27,48,40},/*L2*/{0,0,46},/*Nothing*/{0,0,0}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -66,6 +66,7 @@ public class Ascender extends SubsystemBase {
     pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
     pivotMotorRight.getConfigurator().apply(ascentConfig);
     pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
+    wristMotor.getConfigurator().apply(ascentConfig);
 
     pivotMotorRight.setControl(pivotFollower);
     
@@ -93,7 +94,7 @@ public class Ascender extends SubsystemBase {
     System.out.println(position);
   }
   public void pivotControl(double addPose) {
-    pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
+    pivotController.setSetpoint(Math.min(pivotController.getSetpoint() + addPose, 110));
   }
 
   /**
@@ -120,9 +121,9 @@ public class Ascender extends SubsystemBase {
     var wristSpeed = wristController.calculate(wristMotor.getPosition().getValueAsDouble());
     var pivotSpeed = pivotController.calculate((pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / 2);
     SmartDashboard.putNumber("Ascender ascendSpeed Before Clamp", ascendSpeed);
-    ascendSpeed = MathUtil.clamp(ascendSpeed, -0.25, 0.5);
+    ascendSpeed = MathUtil.clamp(ascendSpeed, -0.15, 0.5);
     wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
-    pivotSpeed = MathUtil.clamp(pivotSpeed, -5, 5);
+    pivotSpeed = MathUtil.clamp(pivotSpeed, -2.5, 2.5);
     
 
     ascendMotor.set(ascendSpeed);
