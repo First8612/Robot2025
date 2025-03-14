@@ -5,33 +5,33 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": null
+            "name": "L1 coral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "Start 3 to Reef"
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": null
+            "waitTime": 0.1
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Reef to processor"
+            "name": "Score Backfeed"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Old Autos",
+  "folder": "Comp Autos",
   "choreoAuto": false
 }

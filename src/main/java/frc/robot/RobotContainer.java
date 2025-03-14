@@ -83,6 +83,15 @@ public class RobotContainer {
         NamedCommands.registerCommand("MoveMeter", new MoveMeters(1,drivetrain));
         NamedCommands.registerCommand("ReefOffsetLeft", aprilFollowLeft);
         NamedCommands.registerCommand("ReefOffsetRight", aprilFollowRight);
+        NamedCommands.registerCommand("L2 coral", new InstantCommand(() -> ascender.goToPosition(4), ascender));
+        NamedCommands.registerCommand("L3 coral", new InstantCommand(() -> ascender.goToPosition(2), ascender));
+        NamedCommands.registerCommand("L4 coral", new InstantCommand(() -> ascender.goToPosition(3), ascender));
+        NamedCommands.registerCommand("Elevator Down", new InstantCommand(() -> ascender.goToPosition(0), ascender));
+        NamedCommands.registerCommand("Station", new InstantCommand(() -> ascender.goToPosition(1), ascender));
+        NamedCommands.registerCommand("L1 coral", new InstantCommand(() -> ascender.goToPosition(7), ascender));
+        NamedCommands.registerCommand("Score Coral", new RunCommand(() -> stabber.inFork(0.25,true)));
+        NamedCommands.registerCommand("Score Backfeed", new RunCommand(() -> stabber.inFork(-0.2,true)));
+
         
         configureBindings();
 
@@ -139,6 +148,7 @@ public class RobotContainer {
         joystickOperator.povUp().onTrue(new InstantCommand(() -> ascender.goToPosition(3), ascender));
         joystickOperator.y().onTrue(new InstantCommand(() -> ascender.goToPosition(1), ascender));
         joystickOperator.rightBumper().onTrue(new InstantCommand(() -> ascender.goToPosition(6), ascender));
+        joystickOperator.b().onTrue(new InstantCommand(() -> ascender.goToPosition(7)));
 
         joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
 
@@ -148,7 +158,7 @@ public class RobotContainer {
         joystickOperator.leftTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
         joystickOperator.rightBumper().onTrue(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
 
-        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.1, true)));
+        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.2, true)));
         joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
         joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.25, true)));
         joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, stabber.overrider)));
@@ -158,11 +168,11 @@ public class RobotContainer {
     }
 
     public void autonomousInit() {
-        //ascender.goToPosition(0);
+        ascender.goToPosition(0);
         extender.setAlgae(0);
     }
     public void teleopInit() {
-        //ascender.goToPosition(0);
+        ascender.goToPosition(0);
         extender.setAlgae(0);
         ascender.pivotMotorLeft.setPosition(0);
         ascender.pivotMotorRight.setPosition(0);

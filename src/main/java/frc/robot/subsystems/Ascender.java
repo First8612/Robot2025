@@ -52,7 +52,7 @@ public class Ascender extends SubsystemBase {
   public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
   //{Elevator Angle,Elevator Height,Wrist Angle}
-  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{0,15,11},/*L3*/{0,17,37.1},/*L4*/{0,48,35},/*L2*/{0,0,36},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35}};
+  double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{-40,15.2,7.2},/*L3*/{0,18.7,38},/*L4*/{-30,48,36},/*L2*/{0,0,39},/*Nothing*/{0,0,0}, /*Climbing*/{1,0,35},/*L1*/{0,13,0}};
 
   double pivotRotations = 0;
   double wristRotations = 0;

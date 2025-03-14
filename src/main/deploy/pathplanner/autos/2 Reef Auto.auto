@@ -7,31 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "Start to Reef J"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "Reef J to Station"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": null
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Reef to processor"
+            "pathName": "Station to Reef L"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Old Autos",
+  "folder": "Comp Autos",
   "choreoAuto": false
 }

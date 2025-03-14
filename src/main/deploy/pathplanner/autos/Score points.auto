@@ -7,37 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start to reef"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef to station"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Station to reef"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef to station"
+            "pathName": null
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Station to reef"
+            "pathName": null
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Old Autos",
   "choreoAuto": false
 }
