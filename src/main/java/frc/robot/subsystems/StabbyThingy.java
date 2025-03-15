@@ -27,7 +27,7 @@ public class StabbyThingy extends SubsystemBase {
   private double alpha = 0.5;
   private double filteredDist = 0;
 
-  public double noNoise() {
+  private double noNoise() {
 
     double rawDist = forkDetector.getDistance().getValueAsDouble();
     SmartDashboard.putNumber("Fork/Detector/Raw", rawDist);
@@ -52,6 +52,15 @@ public class StabbyThingy extends SubsystemBase {
     SmartDashboard.putNumber("Fork/Detector/Filtered", noNoise());
   }
 
+  public void feed(boolean out)
+  {
+    forkMotor.set(out ? 0.5 : -0.5);
+  }
+
+  public boolean getCoralPresent() {
+    return noNoise() <= 0.05;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -62,3 +71,4 @@ public class StabbyThingy extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 }
+
