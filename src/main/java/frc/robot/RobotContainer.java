@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.PhotonVision.PhotonVisionConstants;
-import frc.robot.PhotonVision.AprilTagThing;
+//import frc.robot.PhotonVision.AprilTagThing;
 import frc.robot.PhotonVision.*;
 import frc.robot.PhotonVision;
 //import frc.robot.AprilTagThing;
@@ -70,7 +70,7 @@ public class RobotContainer {
 
     //private final PhotonVision.AprilTagThing.@aprilTagThing(null)();
 
-    private final PhotonVision photon1Vision = new PhotonVision(PhotonVisionConstants.camera1, PhotonVisionConstants.camera1Transform);
+    private final PhotonVision photon1Vision = new PhotonVision(PhotonVisionConstants.camera1, PhotonVisionConstants.camera1Transform)/*.AprilTagThing(true)*/;
     private final PhotonVision photon2Vision = new PhotonVision(PhotonVisionConstants.camera2, PhotonVisionConstants.camera2Transform);
     
     //PhotonVision.AprilTagThing aprilTagThing = photon1Vision.new ApriltagThing();
@@ -118,7 +118,7 @@ public class RobotContainer {
 
             new InstantCommand(() -> 
                 //new AprilTagThing(true)
-                new AprilTagThing(true)
+                photon1Vision.AprilTagThing(true)
                 //AprilTagThing(true)
             )
 

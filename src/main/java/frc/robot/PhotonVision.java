@@ -272,11 +272,11 @@ import org.photonvision.simulation.PhotonCameraSim;
           }
      
           //None of the code in this class has been tested due to various errors
-          public class AprilTagThing extends Command{
+          //public class AprilTagThing /*extends Command*/{
             double distanceToMoveWhy = 0;
             //moves to the right or left and aligns us to the reef stack
-            public AprilTagThing(
-                Boolean doWeMoveLeft
+            public PhotonVision AprilTagThing(
+                boolean doWeMoveLeft
                 ){  
                     Boolean areWeBlueM = DriverStation.getAlliance().equals("blue");
                     String areWeBlue = areWeBlueM.toString();
@@ -366,11 +366,12 @@ import org.photonvision.simulation.PhotonCameraSim;
                 SmartDashboard.putNumber("RobotY", robotY);
                 SmartDashboard.putNumber("tagY", tagY);
                 SmartDashboard.putNumber("DistanceToMoveY", distanceToMoveY);
+                return null;
             }
 
             //public static Constant someRandomFunction = null;
             //static PhotonVision.AprilTagThing hello = null;
-            
+            /*
                 @Override
                 public void initialize() {
                     
@@ -380,6 +381,11 @@ import org.photonvision.simulation.PhotonCameraSim;
                 public void execute() {
                     new CustomMoveMeters(distanceToMoveWhy, drivetrain, false);
                     }
-
-        }
+             */
+        //}
+            /* 
+        public PhotonVision AprilTagThing(boolean b) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'AprilTagThing'");
+        }*/
  }
