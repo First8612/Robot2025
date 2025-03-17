@@ -26,10 +26,11 @@ public class CustomMoveMeters extends Command {
         super();
         this.meters = meters;
         this.drivetrain = drivetrain;
+        this.doWeMoveForwards = doWeMoveForwards;
         addRequirements(drivetrain);
 
         driveController.setIZone(0.5);
-        SmartDashboard.putData("MoveMeterDriveController", driveController);
+        SmartDashboard.putData("CostomMoveMeterDriveController", driveController);
     }
 
     @Override
