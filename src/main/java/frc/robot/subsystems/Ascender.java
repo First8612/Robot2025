@@ -93,6 +93,12 @@ public class Ascender extends SubsystemBase {
     pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
   }
 
+  public boolean isAtPosition() {
+    return Math.abs(pivotController.getError()) < 0.5 
+      && Math.abs(ascendController.getError()) < 0.5 
+      && Math.abs(wristController.getError()) < 0.5;
+  }
+
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
    *

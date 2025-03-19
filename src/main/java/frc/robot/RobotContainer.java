@@ -14,6 +14,9 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdleConfiguration;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
+import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.StabbyThingy;
@@ -44,20 +48,26 @@ public class RobotContainer {
     private final CommandXboxController joystickDrive = new CommandXboxController(0);
     private final CommandXboxController joystickOperator = new CommandXboxController(1);
 
+    // Subsystems
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    //TEST BOT
-    // private final MoveMeters moveMeterCommand = new MoveMeters(2, drivetrain);
-    // private final JankyDumper jankyDumper = new JankyDumper();
     private final Ascender ascender = new Ascender();
     private final StabbyThingy stabber = new StabbyThingy();
     private final AlgaeExtender extender = new AlgaeExtender();
     private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
+    private final CANdle candle = new CANdle(40);
 
     private final SendableChooser<Command> autoChooser;
-    CANdle candle = new CANdle(40);
-   // private final MoveMeters moveMeters = new MoveMeters(1,drivetrain);
+   
+    // Commands
     private final IWannaDumpSomeCoral aprilFollowLeft = new IWannaDumpSomeCoral(drivetrain, true);
     private final IWannaDumpSomeCoral aprilFollowRight = new IWannaDumpSomeCoral(drivetrain, false);
+
+    // Sensors
+    private final Limelight limelightRight = new Limelight("limelight-right");
+    private final Limelight limelightLeft = new Limelight("limelight-left");
+
+    // NT
+    StructPublisher<Pose2d> robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("Poses/Robot", Pose2d.struct).publish();
 
     public double speedMulti = 1;
 
@@ -155,6 +165,14 @@ public class RobotContainer {
 
 
         stabber.inFork(0.1, false);
+    }
+
+    public void robotPeriodic() {
+        limelightRight.updateOdometry(drivetrain);
+        limelightLeft.updateOdometry(drivetrain);
+
+        var state = drivetrain.getState();
+        robotPosePublisher.set(state.Pose, (long)state.Timestamp);
     }
 
     public void autonomousInit() {
