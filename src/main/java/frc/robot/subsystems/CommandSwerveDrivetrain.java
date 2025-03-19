@@ -135,7 +135,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        // configureAutoBuilder();
     }
 
     /**
@@ -160,7 +159,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        // configureAutoBuilder();
     }
 
     /**
@@ -193,13 +191,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        // configureAutoBuilder();
     }
 
     public void configureAutoBuilder() {
-        System.out.println("trying to configure auto");
         try {
             var config = RobotConfig.fromGUISettings();
+
             AutoBuilder.configure(
                 () -> getState().Pose,   // Supplier of current robot pose
                 this::resetPose,         // Consumer for seeding pose against auto
