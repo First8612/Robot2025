@@ -15,6 +15,7 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -165,6 +166,9 @@ public class RobotContainer {
 
 
         stabber.inFork(0.1, false);
+    }
+
+    public void robotInit() {
     }
 
     public void robotPeriodic() {

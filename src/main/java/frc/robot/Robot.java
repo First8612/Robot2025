@@ -25,6 +25,12 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
   }
 
+  @Override
+  public void robotInit() {
+      // TODO Auto-generated method stub
+      m_robotContainer.robotInit();
+  }
+
 
   @Override
   public void robotPeriodic() {

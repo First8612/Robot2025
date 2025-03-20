@@ -1,5 +1,7 @@
 package frc.robot.sensors;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -42,7 +44,7 @@ public class Limelight {
                 drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
                 drivetrain.addVisionMeasurement(
                         mt1.pose,
-                        mt1.timestampSeconds);
+                        Utils.fpgaToCurrentTime(mt1.timestampSeconds));
                 posePublisher.set(mt1.pose);
             }
         } else if (useMegaTag2 == true) {
@@ -50,7 +52,7 @@ public class Limelight {
             LimelightHelpers.SetRobotOrientation(limelightName,
                 robotRotation, 0, 0, 0, 0, 0);
             LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-
+            
             var gyroRate = drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble();
             if (Math.abs(gyroRate) > 720) // if our angular velocity is greater than 720 degrees per second,
                                                   // ignore vision updates
@@ -64,7 +66,7 @@ public class Limelight {
                 drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
                 drivetrain.addVisionMeasurement(
                         mt2.pose,
-                        mt2.timestampSeconds);
+                        Utils.fpgaToCurrentTime(mt2.timestampSeconds));
                 posePublisherMT2.set(mt2.pose);
             }
         }
