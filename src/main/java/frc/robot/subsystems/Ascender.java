@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -25,11 +26,12 @@ public class Ascender extends SubsystemBase {
   public TalonFX wristMotor = new TalonFX(2);
   public TalonFX pivotMotorRight = new TalonFX(60);
   public TalonFX pivotMotorLeft = new TalonFX(61);
+  public CANcoder pivotCANcoder = new CANcoder(14);
   public static CANrange caNrange = new CANrange(50);
 
   public PIDController ascendController = new PIDController(0.025, 0, 0.005);
   public PIDController wristController = new PIDController(0.25, 0, 0);
-  public PIDController pivotController = new PIDController(0.1,0,0);
+  public PIDController pivotController = new PIDController(0.02,0,0);
 
   public Follower pivotFollower = new Follower(61, true);
 
@@ -40,6 +42,7 @@ public class Ascender extends SubsystemBase {
   public CurrentLimitsConfigs ascentCurrentLimit = new CurrentLimitsConfigs();
   public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
+  public MotorOutputConfigs noBrakeMode = new MotorOutputConfigs();
   //{Elevator Angle,Elevator Height,Wrist Angle}
   double preHeights[][] = {/*Down*/{0,0,0},/*Station*/{-43.7,12.5,10.2},/*L3*/{0,17,46},/*L4*/{-27,48,40},/*L2*/{0,0,46},/*Nothing*/{0,0,0}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
 
@@ -52,6 +55,7 @@ public class Ascender extends SubsystemBase {
     pivotCurrentLimit.SupplyCurrentLimit = 30;
     pivotCurrentLimit.SupplyCurrentLimitEnable = true;
     ascentConfig.NeutralMode = NeutralModeValue.Brake;
+    noBrakeMode.NeutralMode = NeutralModeValue.Coast;
     //pivotMotorRight.setControl();
     //ascendMotor.setPosition(0);
     //ascendMotor.curre
@@ -62,8 +66,8 @@ public class Ascender extends SubsystemBase {
     pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
     pivotMotorRight.getConfigurator().apply(ascentConfig);
     pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
-    wristMotor.getConfigurator().apply(ascentConfig);
-
+    //wristMotor.getConfigurator().apply(ascentConfig);
+    wristMotor.getConfigurator().apply(noBrakeMode);
     pivotMotorRight.setControl(pivotFollower);
     
     //wristMotor.setPosition(0);
@@ -121,7 +125,7 @@ public class Ascender extends SubsystemBase {
     // This method will be called once per scheduler run
     var ascendSpeed = ascendController.calculate(noNoise());
     var wristSpeed = wristController.calculate(wristMotor.getPosition().getValueAsDouble());
-    var pivotSpeed = pivotController.calculate((pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / 2);
+    var pivotSpeed = pivotController.calculate((pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     SmartDashboard.putNumber("Ascender ascendSpeed Before Clamp", ascendSpeed);
     ascendSpeed = MathUtil.clamp(ascendSpeed, -0.15, 0.5);
     wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
@@ -146,7 +150,10 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putNumber("Pivot Error", pivotController.getError());
     SmartDashboard.putNumber("Pivot Left Current", pivotMotorLeft.getSupplyCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Pivot Right Current", pivotMotorRight.getSupplyCurrent().getValueAsDouble());
-
+    SmartDashboard.putNumber("Pivot/Encoder", pivotCANcoder.getAbsolutePosition().getValueAsDouble());
+    SmartDashboard.putNumber("Pivot/Adjusted Pivot", (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / -1600);
+    SmartDashboard.putNumber("Pivot/Encoder Offset", pivotCANcoder.getAbsolutePosition().getValueAsDouble() - (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / -1600);
+    SmartDashboard.putNumber("Pivot/Adjusted Encoder", (pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     // Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-right");
     // Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-left");
     // Translation3d targetTrans = targetPoseLeft.getTranslation();
