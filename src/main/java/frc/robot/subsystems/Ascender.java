@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,9 +38,9 @@ public class Ascender extends SubsystemBase {
   public CANcoder wristCANcoder = new CANcoder(15);
   public static CANrange caNrange = new CANrange(50);
 
-  public PIDController ascendController = new PIDController(0.025, 0, 0.005);
-  public PIDController wristController = new PIDController(0.25, 0, 0);
-  public PIDController pivotController = new PIDController(0.02,0,0);
+  public PIDController ascendController = new PIDController(0.04, 0, 0.005);
+  public PIDController wristController = new PIDController(0.005, 0, 0);
+  public PIDController pivotController = new PIDController(0.01,0,0);
 
   public Follower pivotFollower = new Follower(61, true);
 
@@ -49,13 +52,14 @@ public class Ascender extends SubsystemBase {
   public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
   public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
   public MotorOutputConfigs noBrakeMode = new MotorOutputConfigs();
+  private int hasGoToPos = 0;
   /*
   Elevator Angle (UNITS),
   Elevator Height (INCHES),
   Wrist Angle (DEGREES)
   L1-L4 (and climbing) need to be programmed in
   */
-  public double preHeights[][] = {/*Down*/{-2,0.3,161},/*Station*/{-20,21.5,161},/*L3*/{0,17,46},/*L4*/{-27,48,40},/*L2*/{0,0,46},/*Zero*/{20,2,144.5}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
+  public double preHeights[][] = {/*Down*/{-2,0.3,162},/*Station*/{-20,21.5,162},/*L3*/{-20,20,280},/*L4*/{-27,45,280},/*L2*/{-20,5.7,275},/*Zero*/{20,2,144.5}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -79,7 +83,7 @@ public class Ascender extends SubsystemBase {
     pivotMotorRight.getConfigurator().apply(ascentConfig);
     pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
     //wristMotor.getConfigurator().apply(ascentConfig);
-    wristMotor.getConfigurator().apply(noBrakeMode);
+    wristMotor.getConfigurator().apply(ascentConfig);
     pivotMotorRight.setControl(pivotFollower);
     
     //wristMotor.setPosition(0);
@@ -107,33 +111,36 @@ public class Ascender extends SubsystemBase {
     ascendController.setSetpoint(preHeights[position][1]);
   }
   public void goToPositionWrist(int position) {
-    wristController.setSetpoint(preHeights[position][2] / 360);
+    wristController.setSetpoint(preHeights[position][2]);
   }
   public void pivotControl(double addPose) {
     pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
   }
 
   public boolean isPivotAtPosition() {
-    return Math.abs(pivotController.getError()) < 0.5;
+    return Math.abs(pivotController.getError()) < 2;
   }
   public boolean isAscendAtPosition() {
-    return Math.abs(ascendController.getError()) < 0.25;
+    return Math.abs(ascendController.getError()) < 3;
   }
   public boolean isWristAtPosition() {
-    return Math.abs(wristController.getError()) < 0.02;
+    return Math.abs(wristController.getError()) < 10;
   }
-  public SequentialCommandGroup goToPosition(int position) {
-    SmartDashboard.putNumber("Last Position", position);
-    if(this.preHeights[position][1] < this.ascendController.getSetpoint()){
-      GoToPresetDown presetDown = new GoToPresetDown(position, this);
-      return presetDown;
-    }
-    else {
-      GoToPresetUp presetUp = new GoToPresetUp(position, this);
-      return presetUp;
-    }
+  public ConditionalCommand goToPosition(int position) {
+    return new ConditionalCommand(new GoToPresetDown(position, this), new GoToPresetUp(position, this), () -> this.preHeights[position][1] < this.ascendController.getSetpoint());
+  }
+  public static double map(double value, double rangeAStart, double rangeAEnd, double rangeBStart, double rangeBEnd) {
+    return rangeBStart + (value - rangeAStart) * (rangeBEnd - rangeBStart) / (rangeAEnd - rangeAStart);
   }
 
+  private double fixAbsEnc(){
+    if(wristCANcoder.getAbsolutePosition().getValueAsDouble() < 0){
+      return map(wristCANcoder.getAbsolutePosition().getValueAsDouble() * 360, -180,0,180,360);
+    }
+    else{
+      return wristCANcoder.getAbsolutePosition().getValueAsDouble() * 360;
+    }
+  }
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
@@ -156,7 +163,7 @@ public class Ascender extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     var ascendSpeed = ascendController.calculate(noNoise());
-    var wristSpeed = wristController.calculate(wristCANcoder.getAbsolutePosition().getValueAsDouble());
+    var wristSpeed = wristController.calculate(fixAbsEnc());
     var pivotSpeed = pivotController.calculate((pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     SmartDashboard.putNumber("Ascend/Ascender ascendSpeed Before Clamp", ascendSpeed);
     ascendSpeed = MathUtil.clamp(ascendSpeed, -0.15, 0.5);
@@ -169,7 +176,9 @@ public class Ascender extends SubsystemBase {
     pivotMotorLeft.set(pivotSpeed);
 
     SmartDashboard.putNumber("Wrist/WristPosition Motor", wristMotor.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Wrist/Wrist Pos CANcoder", wristCANcoder.getAbsolutePosition().getValueAsDouble() * 360);
+    SmartDashboard.putNumber("Wrist/Wrist Pos CANcoder", fixAbsEnc());
+    SmartDashboard.putNumber("Wrist/Wrist error", wristController.getError());
+    SmartDashboard.putNumber("Wrist/Wrist setpoint", wristController.getSetpoint());
 
     SmartDashboard.putNumber("Ascend/Ascender ascendSpeed After Clamp", ascendSpeed);
     SmartDashboard.putNumber("Ascend/Ascender Error", ascendController.getError() * 1.621);
@@ -187,6 +196,7 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putNumber("Pivot/Encoder Offset", pivotCANcoder.getAbsolutePosition().getValueAsDouble() - (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / -1600);
     SmartDashboard.putNumber("Pivot/Adjusted Encoder", (pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     SmartDashboard.putNumber("Pivot/Set Point", pivotController.getSetpoint());
+    SmartDashboard.putNumber("hasGoToPos", hasGoToPos);
     // Pose3d targetPoseRight = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-right");
     // Pose3d targetPoseLeft = LimelightHelpers.getTargetPose3d_CameraSpace("limelight-left");
     // Translation3d targetTrans = targetPoseLeft.getTranslation();
