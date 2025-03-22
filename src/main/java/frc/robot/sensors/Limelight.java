@@ -4,6 +4,7 @@ import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.LimelightHelpers;
@@ -19,6 +20,14 @@ public class Limelight {
         this.limelightName = name;
         this.posePublisher = NetworkTableInstance.getDefault().getStructTopic("Poses/" + name, Pose2d.struct).publish();
         this.posePublisherMT2 = NetworkTableInstance.getDefault().getStructTopic("Poses/" + name + "-MT2", Pose2d.struct).publish();
+    }
+
+    public double getFiducialID() {
+        return LimelightHelpers.getFiducialID(limelightName);
+    }
+
+    public Pose3d getTargetPose3d_CameraSpace() {
+        return LimelightHelpers.getTargetPose3d_CameraSpace(limelightName);
     }
 
     public void updateOdometry(CommandSwerveDrivetrain drivetrain) {

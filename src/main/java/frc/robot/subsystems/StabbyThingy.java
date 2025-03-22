@@ -37,19 +37,18 @@ public class StabbyThingy extends SubsystemBase {
   }
 
   public void inFork(double speed, boolean overriden) {
-    if(noNoise() > 0.05 || overriden) {
+    if(filteredDist > 0.05 || overriden) {
       forkMotor.set(speed);
-      if(noNoise() <= 0.05) {
+      if(filteredDist <= 0.05) {
         overriden = true;
       }
     } else {
       forkMotor.set(0);
-      if(noNoise() > 0.05) {
+      if(filteredDist > 0.05) {
         overriden = false;
       }
     }
 
-    SmartDashboard.putNumber("Fork/Detector/Filtered", noNoise());
   }
 
   public void feed(boolean out)
@@ -58,12 +57,14 @@ public class StabbyThingy extends SubsystemBase {
   }
 
   public boolean getCoralPresent() {
-    return noNoise() <= 0.05;
+    return filteredDist <= 0.05;
   }
 
   @Override
   public void periodic() {
+    noNoise();
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Fork/Detector/Filtered", filteredDist);
   }
 
   @Override

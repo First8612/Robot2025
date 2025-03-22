@@ -21,10 +21,12 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.AlignToTag;
 import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
@@ -32,8 +34,8 @@ import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.StabbyThingy;
-import frc.robot.subsystems.AlgaeExtender;
-import frc.robot.subsystems.AlgaeGrabber;
+//import frc.robot.subsystems.AlgaeExtender;
+//import frc.robot.subsystems.AlgaeGrabber;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -53,8 +55,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final Ascender ascender = new Ascender();
     private final StabbyThingy stabber = new StabbyThingy();
-    private final AlgaeExtender extender = new AlgaeExtender();
-    private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
+    //private final AlgaeExtender extender = new AlgaeExtender();
+    //private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
     private final CANdle candle = new CANdle(40);
 
     private final SendableChooser<Command> autoChooser;
@@ -140,29 +142,32 @@ public class RobotContainer {
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystickDrive.x().whileTrue(aprilFollowLeft);
-        joystickDrive.b().whileTrue(aprilFollowRight);
+        joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
+        joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
+        // joystickDrive.x().whileTrue(aprilFollowLeft);
+        // joystickDrive.b().whileTrue(aprilFollowRight);
 
-        joystickOperator.povRight().onTrue(new InstantCommand(() -> ascender.goToPosition(0), ascender));
-        joystickOperator.povDown().onTrue(new InstantCommand(() -> ascender.goToPosition(4), ascender));
-        joystickOperator.povLeft().onTrue(new InstantCommand(() -> ascender.goToPosition(2), ascender));
-        joystickOperator.povUp().onTrue(new InstantCommand(() -> ascender.goToPosition(3), ascender));
-        joystickOperator.y().onTrue(new InstantCommand(() -> ascender.goToPosition(1), ascender));
-        joystickOperator.rightBumper().onTrue(new InstantCommand(() -> ascender.goToPosition(6), ascender));
-        joystickOperator.b().onTrue(new InstantCommand(() -> ascender.goToPosition(7)));
+        joystickOperator.povRight().onTrue(ascender.goToPosition(0));
+        joystickOperator.povDown().onTrue(ascender.goToPosition(4));
+        joystickOperator.povLeft().onTrue(ascender.goToPosition(2));
+        joystickOperator.povUp().onTrue(ascender.goToPosition(3));
+        joystickOperator.y().onTrue(ascender.goToPosition(1));
+        joystickOperator.rightBumper().onTrue(ascender.goToPosition(6));
+        joystickOperator.b().onTrue(ascender.goToPosition(7));
 
-        joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
+        //joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
 
-        joystickOperator.leftTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(joystickOperator.getLeftTriggerAxis()/2)));
-        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/4)));
-        joystickOperator.rightTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
-        joystickOperator.leftTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
-        joystickOperator.rightBumper().onTrue(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
+//for algae intake that no longer exists
+        //joystickOperator.leftTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(joystickOperator.getLeftTriggerAxis()/2)));
+        //joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> algaeRoll.runAlgaeIn(-joystickOperator.getRightTriggerAxis()/4)));
+        //joystickOperator.rightTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
+        //joystickOperator.leftTrigger().onFalse(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
+        //joystickOperator.rightBumper().onTrue(new InstantCommand(() -> algaeRoll.runAlgaeIn(0)));
 
-        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(-0.2, true)));
-        joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
-        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.2, true)));
-        joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, stabber.overrider)));
+        //joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.1, true)));
+        //joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
+        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(-0.1, true)));
+        joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
 
 
         stabber.inFork(0.1, false);
@@ -170,24 +175,23 @@ public class RobotContainer {
 
     public void robotInit() {
     }
-
     public void robotPeriodic() {
-        limelightRight.updateOdometry(drivetrain);
-        limelightLeft.updateOdometry(drivetrain);
+        //limelightRight.updateOdometry(drivetrain);
+        //limelightLeft.updateOdometry(drivetrain);
 
         var state = drivetrain.getState();
         robotPosePublisher.set(state.Pose, (long)state.Timestamp);
     }
 
     public void autonomousInit() {
-        ascender.goToPosition(0);
-        extender.setAlgae(0);
+        CommandScheduler.getInstance().schedule(ascender.goToPosition(5));
+        //extender.setAlgae(0);
     }
     public void teleopInit() {
-        ascender.goToPosition(0);
-        extender.setAlgae(0);
-        ascender.pivotMotorLeft.setPosition(0);
-        ascender.pivotMotorRight.setPosition(0);
+        CommandScheduler.getInstance().schedule(ascender.goToPosition(5));
+        //extender.setAlgae(0);
+        //ascender.pivotMotorLeft.setPosition(0);
+        //ascender.pivotMotorRight.setPosition(0);
     }
     public void teleopPeriodic() {
         ascender.pivotControl(joystickOperator.getRightY());

@@ -1,13 +1,13 @@
-package frc.robot.commands;
+package frc.robot.commands.GoToPreset;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Ascender;
 
-public class GoToPreset extends Command {
+public class GoToPresetAscend extends Command {
     private Ascender ascender;
     private int position;
 
-    public GoToPreset(int position, Ascender ascender) {
+    public GoToPresetAscend(int position, Ascender ascender) {
         super();
         this.position = position;
         this.ascender = ascender;
@@ -15,11 +15,11 @@ public class GoToPreset extends Command {
 
     @Override
     public void initialize() {
-        ascender.goToPosition(position);
+        ascender.goToPositionAscend(position);
     }
 
     @Override
     public boolean isFinished() {
-        return ascender.isAtPosition();
+        return ascender.isAscendAtPosition();
     }
 }

@@ -80,25 +80,25 @@ public class IWannaDumpSomeCoral extends Command {
       targetRot = targetPoseRight.getRotation();
     }
     System.out.println(targetPoseRight);
-    SmartDashboard.putNumber("Target T X",targetTrans.getX());
-    SmartDashboard.putNumber("Target T Y",targetTrans.getY());
-    SmartDashboard.putNumber("Target T Z",targetTrans.getZ());
-    SmartDashboard.putNumber("Target R X",targetRot.getX());
-    SmartDashboard.putNumber("Target R Y",targetRot.getY());
-    SmartDashboard.putNumber("Target R Z",targetRot.getZ());
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Target T X",targetTrans.getX());
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Target T Y",targetTrans.getY());
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Target T Z",targetTrans.getZ());
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Target R X",targetRot.getX());
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Target R Y",targetRot.getY());
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Target R Z",targetRot.getZ());
     double xError = targetTrans.getX();
     double yawError = targetRot.getY();
     double zError = targetTrans.getZ() - 0.3;
-    SmartDashboard.putNumber("xError", xError);
-    SmartDashboard.putNumber("yawError", yawError);
-    SmartDashboard.putNumber("zError", zError);
-    SmartDashboard.putNumber("Stage 1 Error", (Math.abs(yawError) + Math.abs(xError)));
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/xError", xError);
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/yawError", yawError);
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/zError", zError);
+    SmartDashboard.putNumber("IWannaDumpSomeCoral/Stage 1 Error", (Math.abs(yawError) + Math.abs(xError)));
     if(stage == 0) {
       //move to center and turn
       var tVelocity = turny.calculate(xError);
       var yVelocity = leftright.calculate(-yawError);
-      SmartDashboard.putNumber("Turning",tVelocity);
-      SmartDashboard.putNumber("Moving",yVelocity);
+      SmartDashboard.putNumber("IWannaDumpSomeCoral/Turning",tVelocity);
+      SmartDashboard.putNumber("IWannaDumpSomeCoral/Moving",yVelocity);
       tVelocity = restraint_wehavenone.calculate(tVelocity);
       yVelocity = leftRightLimit.calculate(yVelocity);
       //Slight Forward
