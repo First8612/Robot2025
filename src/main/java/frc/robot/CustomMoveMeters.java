@@ -73,7 +73,7 @@ public class CustomMoveMeters extends Command {
 
             SmartDashboard.putNumber("MoveMeterDriveController.velocityY", velocity);
 
-            drivetrain.setControl(forwardStraight.withVelocityX(velocity).withVelocityX(0));
+            drivetrain.setControl(forwardStraight.withVelocityY(velocity).withVelocityX(0));
         }
     }
 

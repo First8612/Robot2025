@@ -52,8 +52,8 @@ import java.util.List;
  import org.photonvision.PhotonCamera;
  import org.photonvision.PhotonPoseEstimator;
  import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.estimation.VisionEstimation;
-import org.photonvision.simulation.PhotonCameraSim;
+ import org.photonvision.estimation.VisionEstimation;
+ import org.photonvision.simulation.PhotonCameraSim;
  import org.photonvision.simulation.SimCameraProperties;
  import org.photonvision.simulation.VisionSystemSim;
  import org.photonvision.targeting.PhotonTrackedTarget;
@@ -63,6 +63,7 @@ import org.photonvision.simulation.PhotonCameraSim;
  import edu.wpi.first.apriltag.AprilTagFields;
  import edu.wpi.first.math.geometry.Transform3d;
  import edu.wpi.first.math.geometry.Translation3d;
+
 
 
  /*//Unused imports. Commented out to reduce annoyance.
@@ -132,9 +133,6 @@ import org.photonvision.simulation.PhotonCameraSim;
             new Translation3d(-0.3, 0, 0.5),
             new Rotation3d(0, 0, Math.PI));
          public static final String kCameraName = camera2;
-        
-        
-
 
          // Cam mounted facing forward, half a meter forward of center, half a meter up
          // from center --> (new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0))
@@ -150,13 +148,40 @@ import org.photonvision.simulation.PhotonCameraSim;
      Transform3d kRobotToCam = PhotonVision.PhotonVisionConstants.kRobotToCam;
      Matrix<N3, N1> kSingleTagStdDevs = PhotonVision.PhotonVisionConstants.kSingleTagStdDevs;
      Matrix<N3, N1> kMultiTagStdDevs = PhotonVision.PhotonVisionConstants.kSingleTagStdDevs;
- 
+     PhotonCameraSim cameraSim;
+     VisionSystemSim visionSim;
+
      
      public PhotonVision(String passedCamera, Transform3d passedTransormation) {
          camera = new PhotonCamera(passedCamera);
  
          photonEstimator = new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, passedTransormation);
          photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+         // Simulation
+
+
+         // ----- Simulation
+         if (Robot.isSimulation()) {
+            // Create the vision system simulation which handles cameras and targets on the field.
+            visionSim = new VisionSystemSim("main");
+            // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
+            visionSim.addAprilTags(kTagLayout);
+            // Create simulated camera properties. These can be set to mimic your actual camera.
+            var cameraProp = new SimCameraProperties();
+            cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(180));
+            cameraProp.setCalibError(0.35, 0.10);
+            cameraProp.setFPS(15);
+            cameraProp.setAvgLatencyMs(50);
+            cameraProp.setLatencyStdDevMs(15);
+            // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
+            // targets.
+            cameraSim = new PhotonCameraSim(camera, cameraProp);
+            // Add the simulated camera to view the targets on this simulated field.
+            visionSim.addCamera(cameraSim, kRobotToCam);
+
+            cameraSim.enableDrawWireframe(true);
+        }
      }
  
      /**
@@ -186,6 +211,17 @@ import org.photonvision.simulation.PhotonCameraSim;
                   visionEst = photonEstimator.update(change);
                   updateEstimationStdDevs(visionEst, change.getTargets());
                   photonTargets = change.getTargets();
+
+                  if (Robot.isSimulation()) {
+                    visionEst.ifPresentOrElse(
+                            est ->
+                                    getSimDebugField()
+                                            .getObject("VisionEstimation")
+                                            .setPose(est.estimatedPose.toPose2d()),
+                            () -> {
+                                getSimDebugField().getObject("VisionEstimation").setPoses();
+                            });
+                }
               }
               visionEstimation = visionEst;
               return visionEst;
@@ -206,7 +242,7 @@ import org.photonvision.simulation.PhotonCameraSim;
               if (estimatedPose.isEmpty()) {
                   // No pose input. Default to single-tag std devs
                   curStdDevs = kSingleTagStdDevs;
-      
+                
               } else {
                   // Pose present. Start running Heuristic
                   var estStdDevs = kSingleTagStdDevs;
@@ -256,19 +292,21 @@ import org.photonvision.simulation.PhotonCameraSim;
           public Matrix<N3, N1> getEstimationStdDevs() {
               return curStdDevs;
           }
-      
+          
           // ----- Simulation
-      
           public void simulationPeriodic(Pose2d robotSimPose) {
+            visionSim.update(robotSimPose);
           }
       
           /** Reset pose history of the robot in the vision system simulation. */
           public void resetSimPose(Pose2d pose) {
+            if (Robot.isSimulation()) visionSim.resetRobotPose(pose);
           }
       
           /** A Field2d for visualizing our robot and objects on the field. */
           public Field2d getSimDebugField() {
-              return null;
+            if (!Robot.isSimulation()) return null;
+            return visionSim.getDebugField();
           }
      
           //None of the code in this class has been tested due to various errors
@@ -278,10 +316,12 @@ import org.photonvision.simulation.PhotonCameraSim;
             public PhotonVision AprilTagThing(
                 boolean doWeMoveLeft
                 ){  
-                    Boolean areWeBlueM = DriverStation.getAlliance().equals("blue");
+                    Boolean areWeBlueM = DriverStation.getAlliance().equals(Alliance.Blue);
+                    System.out.println(areWeBlueM);
                     String areWeBlue = areWeBlueM.toString();
                     System.out.println(areWeBlue);
                     Optional<EstimatedRobotPose> estimatedPose = visionEstimation;
+                    Pose2d actualRobotPose = drivetrain.getPose();
                     List<PhotonTrackedTarget> targets = photonTargets;
 
                     int numOfTags = 0;
@@ -349,7 +389,9 @@ import org.photonvision.simulation.PhotonCameraSim;
                                 .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
 
                         tagY = tagPose.get().getY();
-                        robotY = estimatedPose.get().estimatedPose.toPose2d().getY();
+                        //robotY = estimatedPose.get().estimatedPose.toPose2d().getY();
+                        //we could also try this:
+                        robotY = actualRobotPose.getY();
                         distanceToMoveY = robotY - tagY;
                     }
                         //I have a new thing here because otherwise it complains about the scope.
@@ -358,14 +400,14 @@ import org.photonvision.simulation.PhotonCameraSim;
                         new InstantCommand(() -> 
                             new CustomMoveMeters(distanceToMoveWWWHHHHHYYYY, drivetrain, false)./*Chat GPT said to add schedual*/schedule()
                         );
-                        SmartDashboard.putNumber("RobotY", robotY);
-                        SmartDashboard.putNumber("tagY", tagY);
-                        SmartDashboard.putNumber("DistanceToMoveY", distanceToMoveY);
+                        SmartDashboard.putNumber("AprilTagThing/1RobotY", robotY);
+                        SmartDashboard.putNumber("AprilTagThing/1tagY", tagY);
+                        SmartDashboard.putNumber("AprilTagThing/1DistanceToMoveY", distanceToMoveY);
 
                     
-                SmartDashboard.putNumber("RobotY", robotY);
-                SmartDashboard.putNumber("tagY", tagY);
-                SmartDashboard.putNumber("DistanceToMoveY", distanceToMoveY);
+                SmartDashboard.putNumber("AprilTagThing/RobotY", robotY);
+                SmartDashboard.putNumber("AprilTagThing/tagY", tagY);
+                SmartDashboard.putNumber("AprilTagThing/DistanceToMoveY", distanceToMoveY);
                 return null;
             }
 

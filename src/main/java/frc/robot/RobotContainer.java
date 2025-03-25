@@ -114,8 +114,8 @@ public class RobotContainer {
         joystickDrive.b().onTrue(new InstantCommand(() -> {
             drivetrain.resetFieldOrientation();
         }));
+        
         joystickDrive.rightTrigger().onTrue(
-
             new InstantCommand(() -> 
                 //new AprilTagThing(true)
                 photon1Vision.AprilTagThing(true)
