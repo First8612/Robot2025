@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix.led.CANdle;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,7 +18,7 @@ public class StabbyThingy extends SubsystemBase {
   private CANrange forkDetector = new CANrange(51);
   private MotorOutputConfigs forkConfig = new MotorOutputConfigs();
   public boolean overrider = false;
-
+  private CANdle candle = new CANdle(40);
   public StabbyThingy() {
     forkConfig.NeutralMode = NeutralModeValue.Brake;
 
@@ -65,6 +66,12 @@ public class StabbyThingy extends SubsystemBase {
     noNoise();
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Fork/Detector/Filtered", filteredDist);
+    if(getCoralPresent()) {
+      candle.setLEDs(0, 255, 0);
+    }
+    else{
+      candle.setLEDs(255, 0, 0);
+    }
   }
 
   @Override

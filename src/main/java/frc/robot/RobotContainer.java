@@ -169,6 +169,7 @@ public class RobotContainer {
         joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(-0.125, true)));
         joystickOperator.a().whileFalse(new RunCommand(() -> stabber.inFork(0.25, false)));
         joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.15, true)));
+        joystickOperator.button(8).whileTrue(new RunCommand(() -> stabber.inFork(0.75, true)));
 
 
         stabber.inFork(0.1, false);
@@ -182,6 +183,8 @@ public class RobotContainer {
 
         var state = drivetrain.getState();
         robotPosePublisher.set(state.Pose, (long)state.Timestamp);
+
+
     }
 
     public void autonomousInit() {

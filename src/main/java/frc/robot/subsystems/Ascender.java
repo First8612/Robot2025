@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.GoToPreset.GoToPresetDown;
+import frc.robot.commands.GoToPreset.GoToPresetFromBottom;
 import frc.robot.commands.GoToPreset.GoToPresetUp;
 
 
@@ -39,8 +40,8 @@ public class Ascender extends SubsystemBase {
   public static CANrange caNrange = new CANrange(50);
 
   public PIDController ascendController = new PIDController(0.04, 0, 0.005);
-  public PIDController wristController = new PIDController(0.005, 0, 0);
-  public PIDController pivotController = new PIDController(0.01,0,0);
+  public PIDController wristController = new PIDController(0.01, 0, 0);
+  public PIDController pivotController = new PIDController(0.02,0.001,0.001);
 
   public Follower pivotFollower = new Follower(61, true);
 
@@ -59,7 +60,7 @@ public class Ascender extends SubsystemBase {
   Wrist Angle (DEGREES)
   L1-L4 (and climbing) need to be programmed in
   */
-  public double preHeights[][] = {/*Down*/{-2,0.3,162},/*Station*/{-20,21.5,162},/*L3*/{-20,20,280},/*L4*/{-27,45,280},/*L2*/{-20,5.7,275},/*Zero*/{20,2,144.5}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
+  public double preHeights[][] = {/*Down*/{-2,0.3,162},/*Station*/{-20,21.5,162},/*L3*/{-20,20,280},/*L4*/{-27,42.5,280},/*L2*/{-20,5.7,275},/*Zero*/{20,2,144.5}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -87,6 +88,9 @@ public class Ascender extends SubsystemBase {
     pivotMotorRight.setControl(pivotFollower);
     
     //wristMotor.setPosition(0);
+    SmartDashboard.putData("Ascender/Pivot PID", pivotController);
+    SmartDashboard.putData("Ascender/Wrist PID", wristController);
+    SmartDashboard.putData("Ascender/Ascend PID", ascendController);
   }
   /* 
   public void setPivot(double position) {
@@ -127,7 +131,13 @@ public class Ascender extends SubsystemBase {
     return Math.abs(wristController.getError()) < 10;
   }
   public ConditionalCommand goToPosition(int position) {
-    return new ConditionalCommand(new GoToPresetDown(position, this), new GoToPresetUp(position, this), () -> this.preHeights[position][1] < this.ascendController.getSetpoint());
+    return new ConditionalCommand(
+      new GoToPresetDown(position, this), 
+        new ConditionalCommand(
+          new GoToPresetFromBottom(position, this),
+          new GoToPresetUp(position, this),
+          () -> this.ascendController.getSetpoint() == 0.3),
+      () -> this.preHeights[position][1] < this.ascendController.getSetpoint());
   }
   public static double map(double value, double rangeAStart, double rangeAEnd, double rangeBStart, double rangeBEnd) {
     return rangeBStart + (value - rangeAStart) * (rangeBEnd - rangeBStart) / (rangeAEnd - rangeAStart);

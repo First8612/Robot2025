@@ -1,0 +1,39 @@
+{
+  "NetworkTables": {
+    "transitory": {
+      "SmartDashboard": {
+        "Ascender": {
+          "Pivot PID": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Pose": "Field2d",
+      "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/AlignToTag/rotationController": "PIDController",
+      "/SmartDashboard/AlignToTag/xController": "PIDController",
+      "/SmartDashboard/AlignToTag/yController": "PIDController",
+      "/SmartDashboard/Ascender/Ascend PID": "PIDController",
+      "/SmartDashboard/Ascender/Pivot PID": "PIDController",
+      "/SmartDashboard/Ascender/Wrist PID": "PIDController",
+      "/SmartDashboard/Auto Path": "String Chooser",
+      "/SmartDashboard/Module 0": "Mechanism2d",
+      "/SmartDashboard/Module 1": "Mechanism2d",
+      "/SmartDashboard/Module 2": "Mechanism2d",
+      "/SmartDashboard/Module 3": "Mechanism2d",
+      "/SmartDashboard/MoveMeterDriveController": "PIDController"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "8612"
+  }
+}
