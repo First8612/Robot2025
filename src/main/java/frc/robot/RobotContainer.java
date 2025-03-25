@@ -153,7 +153,8 @@ public class RobotContainer {
         joystickOperator.povUp().onTrue(ascender.goToPosition(3));
         joystickOperator.y().onTrue(ascender.goToPosition(1));
         joystickOperator.rightBumper().onTrue(ascender.goToPosition(6));
-        joystickOperator.b().onTrue(ascender.goToPosition(7));
+        //L1
+        //joystickOperator.b().onTrue(ascender.goToPosition(7));
 
         //joystickOperator.leftBumper().onTrue(new InstantCommand(() -> extender.setAlgae(extender.goToPosition)));
 

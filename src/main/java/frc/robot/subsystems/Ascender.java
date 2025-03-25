@@ -41,7 +41,7 @@ public class Ascender extends SubsystemBase {
 
   public PIDController ascendController = new PIDController(0.04, 0, 0.005);
   public PIDController wristController = new PIDController(0.01, 0, 0);
-  public PIDController pivotController = new PIDController(0.02,0.001,0.001);
+  public PIDController pivotController = new PIDController(0.02,0.01,0.002);
 
   public Follower pivotFollower = new Follower(61, true);
 
@@ -60,7 +60,7 @@ public class Ascender extends SubsystemBase {
   Wrist Angle (DEGREES)
   L1-L4 (and climbing) need to be programmed in
   */
-  public double preHeights[][] = {/*Down*/{-2,0.3,162},/*Station*/{-20,21.5,162},/*L3*/{-20,20,280},/*L4*/{-27,42.5,280},/*L2*/{-20,5.7,275},/*Zero*/{20,2,144.5}, /*Climbing*/{0,0,43},/*L1*/{0,13,0}};
+  public double preHeights[][] = {/*Down*/{-2,0.3,162},/*Station*/{-20,21.5,162},/*L3*/{-20,20,280},/*L4*/{-27,42.5,280},/*L2*/{-20,5.7,275},/*Zero*/{20,2,144.5}, /*Climbing*/{19.5,2.3,355},/*L1*/{0,13,0}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -84,8 +84,10 @@ public class Ascender extends SubsystemBase {
     pivotMotorRight.getConfigurator().apply(ascentConfig);
     pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
     //wristMotor.getConfigurator().apply(ascentConfig);
-    wristMotor.getConfigurator().apply(ascentConfig);
+    wristMotor.getConfigurator().apply(noBrakeMode);
     pivotMotorRight.setControl(pivotFollower);
+
+    pivotController.setIZone(2);
     
     //wristMotor.setPosition(0);
     SmartDashboard.putData("Ascender/Pivot PID", pivotController);
@@ -174,6 +176,9 @@ public class Ascender extends SubsystemBase {
     // This method will be called once per scheduler run
     var ascendSpeed = ascendController.calculate(noNoise());
     var wristSpeed = wristController.calculate(fixAbsEnc());
+    if(fixAbsEnc() < 50) {
+      wristSpeed = 0;
+    }
     var pivotSpeed = pivotController.calculate((pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     SmartDashboard.putNumber("Ascend/Ascender ascendSpeed Before Clamp", ascendSpeed);
     ascendSpeed = MathUtil.clamp(ascendSpeed, -0.15, 0.5);
