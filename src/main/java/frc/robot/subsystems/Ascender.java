@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.GoToPreset.GoToPresetDown;
 import frc.robot.commands.GoToPreset.GoToPresetFromBottom;
-import frc.robot.commands.GoToPreset.GoToPresetUp;
+import frc.robot.commands.GoToPreset.GoToPresetNormal;
 
 
 public class Ascender extends SubsystemBase {
@@ -60,7 +60,8 @@ public class Ascender extends SubsystemBase {
   Wrist Angle (DEGREES)
   L1-L4 (and climbing) need to be programmed in
   */
-  public double preHeights[][] = {/*Down*/{-2,0.3,162},/*Station*/{-20,21.5,162},/*L3*/{-20,20,280},/*L4*/{-27,42.5,280},/*L2*/{-20,5.7,275},/*Zero*/{20,2,144.5}, /*Climbing*/{19.5,2.3,355},/*L1*/{0,13,0}};
+  
+  public double preHeights[][] = {/*Down*/{-2,0.3,40},/*Station*/{-20,21.5,40},/*L3*/{-20,20,158},/*L4*/{-27,42.5,158},/*L2*/{-20,5.7,153},/*Zero*/{20,2,22}, /*Climbing*/{19.5,2.3,233},/*L1*/{0,13,0}};
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -129,17 +130,20 @@ public class Ascender extends SubsystemBase {
   public boolean isAscendAtPosition() {
     return Math.abs(ascendController.getError()) < 3;
   }
+  public boolean isAscendAbove() {
+    return getRange() > 5;
+  }
   public boolean isWristAtPosition() {
     return Math.abs(wristController.getError()) < 10;
   }
   public ConditionalCommand goToPosition(int position) {
     return new ConditionalCommand(
-      new GoToPresetDown(position, this), 
+      new GoToPresetDown(position, this),
         new ConditionalCommand(
           new GoToPresetFromBottom(position, this),
-          new GoToPresetUp(position, this),
-          () -> this.ascendController.getSetpoint() == 0.3),
-      () -> this.preHeights[position][1] < this.ascendController.getSetpoint());
+          new GoToPresetNormal(position, this),
+          () -> this.ascendController.getSetpoint() <= 2),
+      () -> this.preHeights[position][1] <= 2);
   }
   public static double map(double value, double rangeAStart, double rangeAEnd, double rangeBStart, double rangeBEnd) {
     return rangeBStart + (value - rangeAStart) * (rangeBEnd - rangeBStart) / (rangeAEnd - rangeAStart);
@@ -154,6 +158,11 @@ public class Ascender extends SubsystemBase {
     }
   }
 
+  public void startPosFix() {
+    pivotController.setSetpoint((pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
+    ascendController.setSetpoint(noNoise());
+    wristController.setSetpoint(fixAbsEnc());
+  }
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
    *
@@ -176,15 +185,11 @@ public class Ascender extends SubsystemBase {
     // This method will be called once per scheduler run
     var ascendSpeed = ascendController.calculate(noNoise());
     var wristSpeed = wristController.calculate(fixAbsEnc());
-    if(fixAbsEnc() < 50) {
-      wristSpeed = 0;
-    }
     var pivotSpeed = pivotController.calculate((pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     SmartDashboard.putNumber("Ascend/Ascender ascendSpeed Before Clamp", ascendSpeed);
     ascendSpeed = MathUtil.clamp(ascendSpeed, -0.15, 0.5);
     wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
     pivotSpeed = MathUtil.clamp(pivotSpeed, -2.5, 2.5);
-    
 
     ascendMotor.set(ascendSpeed);
     wristMotor.set(wristSpeed);

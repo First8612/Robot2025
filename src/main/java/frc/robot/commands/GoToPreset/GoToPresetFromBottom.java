@@ -8,8 +8,10 @@ public class GoToPresetFromBottom extends SequentialCommandGroup {
     public GoToPresetFromBottom(int position, Ascender ascender) {
         super(
             new GoToPresetAscend(position, ascender),
-            new GoToPresetPivot(position, ascender),
-            new GoToPresetWrist(position, ascender)
+            new ParallelCommandGroup(
+                new GoToPresetPivot(position, ascender),
+                new GoToPresetWrist(position, ascender)
+            )
         );
     }
 }

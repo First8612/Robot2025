@@ -189,11 +189,11 @@ public class RobotContainer {
     }
 
     public void autonomousInit() {
-        CommandScheduler.getInstance().schedule(ascender.goToPosition(5));
+        ascender.startPosFix();
         //extender.setAlgae(0);
     }
     public void teleopInit() {
-        CommandScheduler.getInstance().schedule(ascender.goToPosition(5));
+        ascender.startPosFix();
         //extender.setAlgae(0);
         //ascender.pivotMotorLeft.setPosition(0);
         //ascender.pivotMotorRight.setPosition(0);

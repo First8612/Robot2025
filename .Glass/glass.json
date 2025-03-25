@@ -6,6 +6,9 @@
           "Pivot PID": {
             "open": true
           },
+          "Wrist PID": {
+            "open": true
+          },
           "open": true
         },
         "open": true
