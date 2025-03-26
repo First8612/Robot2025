@@ -38,7 +38,7 @@ public class Ascender extends SubsystemBase {
   public CANcoder wristCANcoder = new CANcoder(15);
   public static CANrange caNrange = new CANrange(50);
 
-  public PIDController ascendController = new PIDController(0.04, 0, 0.005);
+  public PIDController ascendController = new PIDController(0.05, 0.02, 0.007);
   public PIDController wristController = new PIDController(0.01, 0, 0);
   public PIDController pivotController = new PIDController(0.02,0.01,0.002);
 
@@ -64,7 +64,7 @@ public class Ascender extends SubsystemBase {
     /*Down*/{-2,0.3,40},
     /*Station*/{-20,21.5,40},
     /*L3*/{-20,20,158},
-    /*L4*/{-27,36,158},
+    /*L4*/{-27,40,158},
     /*L2*/{-20,5.7,153},
     /*Zero*/{20,2,22}, 
     /*Climbing*/{19.5,2.3,233},
@@ -89,6 +89,7 @@ public class Ascender extends SubsystemBase {
     //ascendMotorRight.MasterID(100).OpposeMasterDirection(false);
     ascendMotor.getConfigurator().apply(brakeModeConfig);
     ascendMotor.getConfigurator().apply(ascentCurrentLimit);
+    ascendController.setIZone(2);
     
     /*** WRIST */
     wristMotor.getConfigurator().apply(new CurrentLimitsConfigs()
@@ -163,7 +164,7 @@ public class Ascender extends SubsystemBase {
     return Math.abs(pivotController.getError()) < 2;
   }
   public boolean isAscendAtPosition() {
-    return Math.abs(ascendController.getError()) < 3;
+    return Math.abs(ascendController.getError()) < 0.7;
   }
   public boolean isAscendAbove() {
     return getRange() > 5;
@@ -237,8 +238,9 @@ public class Ascender extends SubsystemBase {
     // SmartDashboard.putNumber("Ascend/Ascender ascendSpeed After Clamp", ascendSpeed);
     // SmartDashboard.putNumber("Ascend/Ascender Error", ascendController.getError() * 1.621);
     // SmartDashboard.putNumber("Ascend/Ascend Encoder", ascendMotor.getPosition().getValueAsDouble()*1.62);
-    // SmartDashboard.putNumber("Ascend/CanRange Output", caNrange.getDistance().getValueAsDouble()*39.3701);
-    // SmartDashboard.putNumber("Ascend/Filtered CanRange", filteredDist);
+    SmartDashboard.putNumber("Ascend/CanRange Output", caNrange.getDistance().getValueAsDouble()*39.3701);
+    SmartDashboard.putNumber("Ascend/Filtered CanRange", filteredDist);
+    SmartDashboard.putBoolean("Ascend/IsAtPosition", isAscendAtPosition());
     // SmartDashboard.putNumber("Pivot/Pivot Left", pivotMotorLeft.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber("Pivot/Pivot Right", pivotMotorRight.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber("Pivot/Pivot Average", (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / 2);
