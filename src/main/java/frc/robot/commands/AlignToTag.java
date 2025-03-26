@@ -3,7 +3,9 @@ package frc.robot.commands;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,8 +18,8 @@ public class AlignToTag extends Command {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private CommandSwerveDrivetrain drivetrain;
-    private PIDController xController = new PIDController(1, 0, 0);
-    private PIDController yController = new PIDController(5, 0, 0);
+    private PIDController xController = new PIDController(1.3, 0, 0);
+    private PIDController yController = new PIDController(1.3, 0, 0);
     private PIDController rotationController = new PIDController(5, 0, 0);
 
     public AlignToTag(Limelight limelight, CommandSwerveDrivetrain drivetrain) {
@@ -46,18 +48,29 @@ public class AlignToTag extends Command {
         SmartDashboard.putNumber("AlignToTag/targetPose/x", targetPose.getX());
         SmartDashboard.putNumber("AlignToTag/targetPose/y", targetPose.getY());
         SmartDashboard.putNumber("AlignToTag/targetPose/z", targetPose.getZ());
+        SmartDashboard.putNumber("AlignToTag/targetPose/rot-x", targetPose.getRotation().getX());
+        SmartDashboard.putNumber("AlignToTag/targetPose/rot-y", targetPose.getRotation().getY());
+        SmartDashboard.putNumber("AlignToTag/targetPose/rot-z", targetPose.getRotation().getZ());
 
-        drivetrain.setControl(robotDrive
-            // .withCenterOfRotation(new Translation2d(1, 0))
-            .withVelocityX( // forward
-                -xController.calculate(targetPose.getZ())
-            )
-            // .withVelocityY( // left
-            //     -yController.calculate(targetPose.getX())
-            // )
-            .withRotationalRate(
-                rotationController.calculate(targetPose.getX())
-            )
+        var drive = robotDrive;
+        drive.withRotationalRate(
+            rotationController.calculate(targetPose.getX())
         );
+
+        drive.withVelocityY( // left
+            MathUtil.clamp(
+                -yController.calculate(targetPose.getRotation().getY()),
+                -1, 1)
+        );
+
+        if (Math.abs(targetPose.getRotation().getY()) < .1)
+        {
+            drive.withVelocityX( // forward
+                -xController.calculate(targetPose.getZ())
+            );
+        }
+
+
+        drivetrain.setControl(drive);
     }
 }

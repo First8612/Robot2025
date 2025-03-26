@@ -134,9 +134,8 @@ public class RobotContainer {
         joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
-        // joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
-        joystickOperator.x().onTrue(ascender.getPivotTensionCommand());
+        joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
+        joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
 
         joystickOperator.povRight().onTrue(ascender.goToPosition(0));
         joystickOperator.povDown().onTrue(ascender.goToPosition(4));
