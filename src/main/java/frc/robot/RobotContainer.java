@@ -15,13 +15,11 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -109,6 +107,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        drivetrain.registerTelemetry(logger::telemeterize);
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -125,27 +125,18 @@ public class RobotContainer {
         joystickDrive.rightBumper().whileFalse(new InstantCommand(() -> changeSpeed(1)));
 
         //TEST BOT STUFF
-        //joystickDrive.rightBumper().whileTrue(jankyDumper.createDumpCommand());
-        // joystickDrive.rightTrigger().toggleOnTrue(new Aim(drivetrain));
-
-        // joystickDrive.button(2).onTrue(Commands.runOnce(SignalLogger::start));
-        // joystickDrive.button(1).onTrue(Commands.runOnce(SignalLogger::stop));
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystickDrive.rightBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystickDrive.rightBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystickDrive.leftBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystickDrive.leftBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // joystickDrive.rightBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // joystickDrive.rightBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // joystickDrive.leftBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // joystickDrive.leftBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
         joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
-        joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
-        // joystickDrive.x().whileTrue(aprilFollowLeft);
-        // joystickDrive.b().whileTrue(aprilFollowRight);
+        // joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
+        // joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
+        joystickOperator.x().onTrue(ascender.getPivotTensionCommand());
 
         joystickOperator.povRight().onTrue(ascender.goToPosition(0));
         joystickOperator.povDown().onTrue(ascender.goToPosition(4));
@@ -182,8 +173,8 @@ public class RobotContainer {
         //limelightRight.updateOdometry(drivetrain);
         //limelightLeft.updateOdometry(drivetrain);
 
-        var state = drivetrain.getState();
-        robotPosePublisher.set(state.Pose, (long)state.Timestamp);
+        // var state = drivetrain.getState();
+        // robotPosePublisher.set(state.Pose, (long)state.Timestamp);
 
 
     }

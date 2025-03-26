@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.Map;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -20,9 +18,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.PivotTensionCommand;
 import frc.robot.commands.GoToPreset.GoToPresetDown;
 import frc.robot.commands.GoToPreset.GoToPresetFromBottom;
 import frc.robot.commands.GoToPreset.GoToPresetNormal;
@@ -61,7 +58,16 @@ public class Ascender extends SubsystemBase {
   L1-L4 (and climbing) need to be programmed in
   */
   
-  public double preHeights[][] = {/*Down*/{-2,0.3,40},/*Station*/{-20,21.5,40},/*L3*/{-20,20,158},/*L4*/{-27,42.5,158},/*L2*/{-20,5.7,153},/*Zero*/{20,2,22}, /*Climbing*/{19.5,2.3,233},/*L1*/{0,13,0}};
+  public double preHeights[][] = {
+    /*Down*/{-2,0.3,40},
+    /*Station*/{-20,21.5,40},
+    /*L3*/{-20,20,158},
+    /*L4*/{-27,36,158},
+    /*L2*/{-20,5.7,153},
+    /*Zero*/{20,2,22}, 
+    /*Climbing*/{19.5,2.3,233},
+    /*L1*/{0,13,0}
+  };
 
   double pivotRotations = 0;
   double wristRotations = 0;
@@ -70,7 +76,11 @@ public class Ascender extends SubsystemBase {
   public Ascender() {
     ascentCurrentLimit.SupplyCurrentLimit = 20;
     ascentCurrentLimit.SupplyCurrentLimitEnable = true;
+    ascentCurrentLimit.StatorCurrentLimit = 50;
+    ascentCurrentLimit.StatorCurrentLimitEnable = true;
     pivotCurrentLimit.SupplyCurrentLimit = 30;
+    pivotCurrentLimit.StatorCurrentLimit = 30;
+    pivotCurrentLimit.StatorCurrentLimitEnable = true;
     pivotCurrentLimit.SupplyCurrentLimitEnable = true;
     ascentConfig.NeutralMode = NeutralModeValue.Brake;
     noBrakeMode.NeutralMode = NeutralModeValue.Coast;
@@ -95,21 +105,11 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putData("Ascender/Wrist PID", wristController);
     SmartDashboard.putData("Ascender/Ascend PID", ascendController);
   }
-  /* 
-  public void setPivot(double position) {
-    pivotController.setSetpoint(position);
-    if(position == 0) {
-      goToPivotPosition = defaultPivotPosition;
-    } else {
-      goToPivotPosition = 0;
-    }
+
+  public Command getPivotTensionCommand() {
+    return new PivotTensionCommand(pivotMotorRight, pivotFollower, this);
   }
-  */
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
+
   public void goToPositionPivot(int position) {
     pivotController.setSetpoint(preHeights[position][0]);
     SmartDashboard.putNumber("SetPoint/wrist setpoint", preHeights[position][0]);
@@ -145,6 +145,7 @@ public class Ascender extends SubsystemBase {
           () -> this.ascendController.getSetpoint() <= 2),
       () -> this.preHeights[position][1] <= 2);
   }
+
   public static double map(double value, double rangeAStart, double rangeAEnd, double rangeBStart, double rangeBEnd) {
     return rangeBStart + (value - rangeAStart) * (rangeBEnd - rangeBStart) / (rangeAEnd - rangeAStart);
   }
