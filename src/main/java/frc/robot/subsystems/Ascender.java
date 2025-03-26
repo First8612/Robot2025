@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -47,8 +48,8 @@ public class Ascender extends SubsystemBase {
   }
   public TalonFXConfiguration talonConfig = new TalonFXConfiguration();
   public CurrentLimitsConfigs ascentCurrentLimit = new CurrentLimitsConfigs();
-  public CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
-  public MotorOutputConfigs ascentConfig = new MotorOutputConfigs();
+  private CurrentLimitsConfigs pivotCurrentLimit = new CurrentLimitsConfigs();
+  public MotorOutputConfigs brakeModeConfig = new MotorOutputConfigs();
   public MotorOutputConfigs noBrakeMode = new MotorOutputConfigs();
   private int hasGoToPos = 0;
   /*
@@ -78,39 +79,64 @@ public class Ascender extends SubsystemBase {
     ascentCurrentLimit.SupplyCurrentLimitEnable = true;
     ascentCurrentLimit.StatorCurrentLimit = 50;
     ascentCurrentLimit.StatorCurrentLimitEnable = true;
-    pivotCurrentLimit.SupplyCurrentLimit = 30;
-    pivotCurrentLimit.StatorCurrentLimit = 30;
-    pivotCurrentLimit.StatorCurrentLimitEnable = true;
-    pivotCurrentLimit.SupplyCurrentLimitEnable = true;
-    ascentConfig.NeutralMode = NeutralModeValue.Brake;
+    brakeModeConfig.NeutralMode = NeutralModeValue.Brake;
     noBrakeMode.NeutralMode = NeutralModeValue.Coast;
+
     //pivotMotorRight.setControl();
     //ascendMotor.setPosition(0);
     //ascendMotor.curre
     //ascendMotorRight.MasterID(100).OpposeMasterDirection(false);
-    ascendMotor.getConfigurator().apply(ascentConfig);
+    ascendMotor.getConfigurator().apply(brakeModeConfig);
     ascendMotor.getConfigurator().apply(ascentCurrentLimit);
-    pivotMotorLeft.getConfigurator().apply(ascentConfig);
-    pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
-    pivotMotorRight.getConfigurator().apply(ascentConfig);
-    pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
     //wristMotor.getConfigurator().apply(ascentConfig);
     wristMotor.getConfigurator().apply(noBrakeMode);
-    pivotMotorRight.setControl(pivotFollower);
 
+
+    /*** PIVOT ****/
+    pivotCurrentLimit.StatorCurrentLimit = 30;
+    pivotCurrentLimit.StatorCurrentLimitEnable = true;
     pivotController.setIZone(2);
+    setPivotBreakMode();
     
-    //wristMotor.setPosition(0);
+    /*** TELEMETRY */
     SmartDashboard.putData("Ascender/Pivot PID", pivotController);
     SmartDashboard.putData("Ascender/Wrist PID", wristController);
     SmartDashboard.putData("Ascender/Ascend PID", ascendController);
   }
 
+  public void setPivotMoveMode() {
+    // left
+    pivotMotorLeft.getConfigurator().apply(brakeModeConfig);
+    pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
+
+    // right
+    pivotMotorRight.getConfigurator().apply(brakeModeConfig);
+    pivotMotorRight.getConfigurator().apply(pivotCurrentLimit);
+    pivotMotorRight.setControl(pivotFollower);
+  }
+
+  public void setPivotBreakMode() {
+    //left (same as move mode, but repeated since this method is used for initialization, and clarity doesn't hurt)
+    pivotMotorLeft.getConfigurator().apply(brakeModeConfig);
+    pivotMotorLeft.getConfigurator().apply(pivotCurrentLimit);
+
+    // right
+    // set current limit low, and constantly fight against the position of the left motor to take up slack
+    pivotMotorRight.getConfigurator().apply(
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(5) // is this good?
+        .withStatorCurrentLimitEnable(true)
+    );
+    pivotMotorRight.setControl(new VoltageOut(2)); // is this good?
+  }
+
   public Command getPivotTensionCommand() {
+    // to be replaced with brake mode?
     return new PivotTensionCommand(pivotMotorRight, pivotFollower, this);
   }
 
   public void goToPositionPivot(int position) {
+    setPivotMoveMode();
     pivotController.setSetpoint(preHeights[position][0]);
     SmartDashboard.putNumber("SetPoint/wrist setpoint", preHeights[position][0]);
   }
@@ -164,15 +190,6 @@ public class Ascender extends SubsystemBase {
     ascendController.setSetpoint(noNoise());
     wristController.setSetpoint(fixAbsEnc());
   }
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
 
   double alpha = 0.1;
   double filteredDist = 0;
@@ -181,6 +198,7 @@ public class Ascender extends SubsystemBase {
     filteredDist = alpha * rawDist + (1 - alpha) * filteredDist;
     return filteredDist;
   }
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
