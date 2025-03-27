@@ -22,6 +22,10 @@ public class Limelight {
         this.posePublisherMT2 = NetworkTableInstance.getDefault().getStructTopic("Poses/" + name + "-MT2", Pose2d.struct).publish();
     }
 
+    public boolean hasTarget() {
+        return LimelightHelpers.getFiducialID(limelightName) >= 0;
+    }
+
     public double getFiducialID() {
         return LimelightHelpers.getFiducialID(limelightName);
     }

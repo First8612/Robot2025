@@ -23,8 +23,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignToTag;
+import frc.robot.commands.ApproachAndScoreAtPosition;
 import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
 import frc.robot.generated.TunerConstants;
@@ -143,6 +143,18 @@ public class RobotContainer {
         joystickOperator.povUp().onTrue(ascender.goToPosition(3));
         joystickOperator.y().onTrue(ascender.goToPosition(1));
         joystickOperator.rightBumper().onTrue(ascender.goToPosition(6));
+
+        // vvvv THIS IS THE AUTO TEST ROUTINE
+        joystickOperator.x().onTrue(
+            new ApproachAndScoreAtPosition(
+                3, // L4
+                drivetrain,
+                ascender,
+                stabber,
+                limelightLeft // score on right reef
+            )
+        );
+
         //L1
         //joystickOperator.b().onTrue(ascender.goToPosition(7));
 
@@ -189,7 +201,10 @@ public class RobotContainer {
         //ascender.pivotMotorRight.setPosition(0);
     }
     public void teleopPeriodic() {
-        ascender.pivotControl(joystickOperator.getRightY());
+        var move = joystickOperator.getRightY();
+        if (Math.abs(move) > 0.25) {
+            ascender.pivotControl(move);
+        }
     }
     
 

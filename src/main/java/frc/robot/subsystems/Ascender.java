@@ -64,7 +64,7 @@ public class Ascender extends SubsystemBase {
     /*Down*/{-2,0.3,40},
     /*Station*/{-20,21.5,40},
     /*L3*/{-20,20,158},
-    /*L4*/{-27,40,158},
+    /*L4*/{-23,40,165},
     /*L2*/{-20,5.7,153},
     /*Zero*/{20,2,22}, 
     /*Climbing*/{19.5,2.3,233},
@@ -157,6 +157,7 @@ public class Ascender extends SubsystemBase {
     wristController.setSetpoint(preHeights[position][2]);
   }
   public void pivotControl(double addPose) {
+    setPivotMoveMode();
     pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
   }
 
@@ -234,6 +235,7 @@ public class Ascender extends SubsystemBase {
     // SmartDashboard.putNumber("Wrist/Wrist Pos CANcoder", fixAbsEnc());
     // SmartDashboard.putNumber("Wrist/Wrist error", wristController.getError());
     // SmartDashboard.putNumber("Wrist/Wrist setpoint", wristController.getSetpoint());
+    SmartDashboard.putBoolean("Wrist/IsAtPosition", isWristAtPosition());
 
     // SmartDashboard.putNumber("Ascend/Ascender ascendSpeed After Clamp", ascendSpeed);
     // SmartDashboard.putNumber("Ascend/Ascender Error", ascendController.getError() * 1.621);
@@ -253,6 +255,7 @@ public class Ascender extends SubsystemBase {
     // SmartDashboard.putNumber("Pivot/Adjusted Encoder", (pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     // SmartDashboard.putNumber("Pivot/Set Point", pivotController.getSetpoint());
     // SmartDashboard.putNumber("hasGoToPos", hasGoToPos);
+    SmartDashboard.putBoolean("Pivot/IsAtPosition", isPivotAtPosition());
   }
 
   @Override

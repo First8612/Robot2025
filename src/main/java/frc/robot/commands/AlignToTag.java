@@ -22,6 +22,8 @@ public class AlignToTag extends Command {
     private PIDController yController = new PIDController(1.3, 0, 0);
     private PIDController rotationController = new PIDController(5, 0, 0);
 
+    private boolean hadTag = false;
+
     public AlignToTag(Limelight limelight, CommandSwerveDrivetrain drivetrain) {
         super();
         this.limelight = limelight;
@@ -39,10 +41,20 @@ public class AlignToTag extends Command {
     }
 
     @Override
+    public boolean isFinished() {
+        if (hadTag && limelight.hasTarget()) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
     public void execute() {
-        System.out.println(limelight.getFiducialID());
-        if (limelight.getFiducialID() == 0)
+        if (limelight.hasTarget())
             return;
+
+        hadTag = true;
 
         var targetPose = limelight.getTargetPose3d_CameraSpace();
         SmartDashboard.putNumber("AlignToTag/targetPose/x", targetPose.getX());
@@ -69,7 +81,6 @@ public class AlignToTag extends Command {
                 -xController.calculate(targetPose.getZ())
             );
         }
-
 
         drivetrain.setControl(drive);
     }
