@@ -159,7 +159,7 @@ public class Ascender extends SubsystemBase {
   }
   public void pivotControl(double addPose) {
     setPivotMoveMode();
-    pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
+    pivotController.setSetpoint(Math.min(pivotController.getSetpoint() + addPose,105));
   }
 
   public boolean isPivotAtPosition() {
@@ -253,7 +253,7 @@ public class Ascender extends SubsystemBase {
     // SmartDashboard.putNumber("Pivot/Pivot/Encoder", pivotCANcoder.getAbsolutePosition().getValueAsDouble());
     // SmartDashboard.putNumber("Pivot/Adjusted Pivot", (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / -1600);
     // SmartDashboard.putNumber("Pivot/Encoder Offset", pivotCANcoder.getAbsolutePosition().getValueAsDouble() - (pivotMotorLeft.getPosition().getValueAsDouble() + pivotMotorRight.getPosition().getValueAsDouble()) / -1600);
-    // SmartDashboard.putNumber("Pivot/Adjusted Encoder", (pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
+     SmartDashboard.putNumber("Pivot/Adjusted Encoder", (pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
     // SmartDashboard.putNumber("Pivot/Set Point", pivotController.getSetpoint());
     // SmartDashboard.putNumber("hasGoToPos", hasGoToPos);
     SmartDashboard.putBoolean("Pivot/IsAtPosition", isPivotAtPosition());
