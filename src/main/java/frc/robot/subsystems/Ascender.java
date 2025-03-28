@@ -204,7 +204,7 @@ public class Ascender extends SubsystemBase {
 
   public void startPosFix() {
     pivotController.setSetpoint((pivotCANcoder.getAbsolutePosition().getValueAsDouble() - 0.27) * -800);
-    ascendController.setSetpoint(noNoise());
+    ascendController.setSetpoint(noNoise() + 1);
     wristController.setSetpoint(fixAbsEnc());
   }
 
