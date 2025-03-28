@@ -51,6 +51,7 @@ public class AlignToTag extends Command {
 
     @Override
     public void execute() {
+        SmartDashboard.putBoolean("AlignToTag/targetPose/exists", limelight.hasTarget());
         if (limelight.hasTarget())
             return;
 
