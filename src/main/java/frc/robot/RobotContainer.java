@@ -27,6 +27,7 @@ import frc.robot.commands.AlignToTag;
 import frc.robot.commands.ApproachAndScoreAtPosition;
 import frc.robot.commands.IWannaDumpSomeCoral;
 import frc.robot.commands.MoveMeters;
+import frc.robot.commands.GoToPreset.GoToPresetWrist;
 import frc.robot.generated.TunerConstants;
 import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Ascender;
@@ -92,8 +93,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("L1 coral", new InstantCommand(() -> ascender.goToPosition(7), ascender));
         NamedCommands.registerCommand("Score Coral", new RunCommand(() -> stabber.inFork(0.25,true)));
         NamedCommands.registerCommand("Score Backfeed", new RunCommand(() -> stabber.inFork(-0.2,true)));
-
-        
+        NamedCommands.registerCommand("Score Coral Group", new ApproachAndScoreAtPosition(3, drivetrain, ascender, stabber, limelightLeft));        
         configureBindings();
 
         drivetrain.configureAutoBuilder();
@@ -143,17 +143,18 @@ public class RobotContainer {
         joystickOperator.povUp().onTrue(ascender.goToPosition(3));
         joystickOperator.y().onTrue(ascender.goToPosition(1));
         joystickOperator.rightBumper().onTrue(ascender.goToPosition(6));
+        joystickOperator.b().onTrue(new GoToPresetWrist(1, ascender));
 
         // vvvv THIS IS THE AUTO TEST ROUTINE
-        joystickOperator.x().onTrue(
-            new ApproachAndScoreAtPosition(
-                3, // L4
-                drivetrain,
-                ascender,
-                stabber,
-                limelightLeft // score on right reef
-            )
-        );
+        // joystickOperator.x().onTrue(
+        //     new ApproachAndScoreAtPosition(
+        //         3, // L4
+        //         drivetrain,
+        //         ascender,
+        //         stabber,
+        //         limelightLeft // score on right reef
+        //     )
+        // );
 
         //L1
         //joystickOperator.b().onTrue(ascender.goToPosition(7));

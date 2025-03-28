@@ -9,6 +9,12 @@
           "data": {
             "pathName": "Leave 2 Path"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Coral Group"
+          }
         }
       ]
     }

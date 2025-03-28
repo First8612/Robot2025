@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.GoToPreset.GoToPresetWrist;
 import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -28,7 +29,7 @@ public class ApproachAndScoreAtPosition extends SequentialCommandGroup {
             // align and approach
             new AlignToTag(limelight, drivetrain),
             new MoveMeters(0.1, drivetrain),
-            ascender.goToPosition(1), // go to station to score
+            new GoToPresetWrist(1, ascender), // go to station to score
             new MoveMeters(-0.25, drivetrain)
         );
     }
