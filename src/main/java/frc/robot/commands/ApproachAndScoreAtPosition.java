@@ -31,7 +31,7 @@ public class ApproachAndScoreAtPosition extends SequentialCommandGroup {
             Commands.race(
                 ascender.goToPosition(position),
                 Commands.waitSeconds(3)
-            ),   
+            ),
 
             // align and approach
             new AlignToTag(limelight, drivetrain),

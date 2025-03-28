@@ -172,6 +172,8 @@ public class RobotContainer {
         //joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
         joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.25, false)));
         joystickOperator.a().onFalse(new RunCommand(() -> stabber.inFork(0, false)));
+        joystickOperator.x().whileTrue(new RunCommand(() -> stabber.inFork(-0.125, true)));
+        joystickOperator.x().onFalse(new RunCommand(() -> stabber.inFork(0, false)));
         joystickOperator.button(6).whileTrue(new RunCommand(() -> stabber.inFork(0.25, true)));
         joystickOperator.button(6).onFalse(new RunCommand(() -> stabber.inFork(0,false)));
         joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.75, true)));
