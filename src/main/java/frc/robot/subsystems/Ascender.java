@@ -95,7 +95,7 @@ public class Ascender extends SubsystemBase {
     wristMotor.getConfigurator().apply(new CurrentLimitsConfigs()
       .withStatorCurrentLimit(30)
       .withStatorCurrentLimitEnable(true));
-    wristMotor.getConfigurator().apply(noBrakeMode);
+    wristMotor.getConfigurator().apply(brakeModeConfig);
 
     /*** PIVOT ****/
     pivotCurrentLimit.StatorCurrentLimit = 30;
