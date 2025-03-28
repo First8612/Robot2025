@@ -25,8 +25,6 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AlignToTag;
 import frc.robot.commands.ApproachAndScoreAtPosition;
-import frc.robot.commands.IWannaDumpSomeCoral;
-import frc.robot.commands.MoveMeters;
 import frc.robot.commands.GoToPreset.GoToPresetWrist;
 import frc.robot.generated.TunerConstants;
 import frc.robot.sensors.Limelight;
@@ -59,10 +57,6 @@ public class RobotContainer {
     private final CANdle candle = new CANdle(40);
 
     private final SendableChooser<Command> autoChooser;
-   
-    // Commands
-    private final IWannaDumpSomeCoral aprilFollowLeft = new IWannaDumpSomeCoral(drivetrain, true);
-    private final IWannaDumpSomeCoral aprilFollowRight = new IWannaDumpSomeCoral(drivetrain, false);
 
     // Sensors
     private final Limelight limelightRight = new Limelight("limelight-right");
@@ -82,17 +76,6 @@ public class RobotContainer {
         candle.setLEDs(255, 255, 255);
         // StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
         // candle.animate(rainbowAnim);
-        NamedCommands.registerCommand("MoveMeter", new MoveMeters(1,drivetrain));
-        NamedCommands.registerCommand("ReefOffsetLeft", aprilFollowLeft);
-        NamedCommands.registerCommand("ReefOffsetRight", aprilFollowRight);
-        NamedCommands.registerCommand("L2 coral", new InstantCommand(() -> ascender.goToPosition(4), ascender));
-        NamedCommands.registerCommand("L3 coral", new InstantCommand(() -> ascender.goToPosition(2), ascender));
-        NamedCommands.registerCommand("L4 coral", new InstantCommand(() -> ascender.goToPosition(3), ascender));
-        NamedCommands.registerCommand("Elevator Down", new InstantCommand(() -> ascender.goToPosition(0), ascender));
-        NamedCommands.registerCommand("Station", new InstantCommand(() -> ascender.goToPosition(1), ascender));
-        NamedCommands.registerCommand("L1 coral", new InstantCommand(() -> ascender.goToPosition(7), ascender));
-        NamedCommands.registerCommand("Score Coral", new RunCommand(() -> stabber.inFork(0.25,true)));
-        NamedCommands.registerCommand("Score Backfeed", new RunCommand(() -> stabber.inFork(-0.2,true)));
         NamedCommands.registerCommand("Score Coral Group", new ApproachAndScoreAtPosition(3, drivetrain, ascender, stabber, limelightLeft));        
         configureBindings();
 
