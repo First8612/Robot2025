@@ -107,6 +107,7 @@ public class Ascender extends SubsystemBase {
     SmartDashboard.putData("Ascender/Pivot PID", pivotController);
     SmartDashboard.putData("Ascender/Wrist PID", wristController);
     SmartDashboard.putData("Ascender/Ascend PID", ascendController);
+    SmartDashboard.putData(this);
   }
 
   public void setPivotMoveMode() {

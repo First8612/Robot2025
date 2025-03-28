@@ -32,6 +32,7 @@ public class AlignToTag extends Command {
         SmartDashboard.putData("AlignToTag/xController", xController);
         SmartDashboard.putData("AlignToTag/yController", yController);
         SmartDashboard.putData("AlignToTag/rotationController", rotationController);
+        SmartDashboard.putData(this);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class AlignToTag extends Command {
 
     @Override
     public boolean isFinished() {
-        if (hadTag && limelight.hasTarget()) {
+        if (hadTag && !limelight.hasTarget()) {
             return true;
         }
         

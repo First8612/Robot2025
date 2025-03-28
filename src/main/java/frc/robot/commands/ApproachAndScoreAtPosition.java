@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.GoToPreset.GoToPresetWrist;
@@ -23,7 +24,10 @@ public class ApproachAndScoreAtPosition extends SequentialCommandGroup {
             ascender.goToPosition(1), // go to station
             Commands.runOnce(() -> fork.inFork(0.25, false), fork),
             ascender.goToPosition(0), // grab the coral,
-            new ForkWaitForCoralPresence(true, fork),
+            Commands.race(
+                Commands.waitSeconds(3),
+                new ForkWaitForCoralPresence(true, fork)
+            ),
             ascender.goToPosition(position),
 
             // align and approach
