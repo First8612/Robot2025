@@ -61,7 +61,7 @@ public class Ascender extends SubsystemBase {
   */
   
   public double preHeights[][] = {
-    /*Down*/{-2,0.3,40},
+    /*Down*/{-2,0.3,45},
     /*Station*/{-20,21.5,40},
     /*L3*/{-20,20,158},
     /*L4*/{-23,40,180},
@@ -136,7 +136,7 @@ public class Ascender extends SubsystemBase {
         .withStatorCurrentLimit(5) // is this good?
         .withStatorCurrentLimitEnable(true)
     );
-    pivotMotorRight.setControl(new VoltageOut(1)); // is this good?
+    pivotMotorRight.setControl(new VoltageOut(-1)); // is this good?
 
     SmartDashboard.putString("Pivot/Mode", "Brake");
   }
