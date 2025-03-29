@@ -159,7 +159,7 @@ public class Ascender extends SubsystemBase {
   }
   public void pivotControl(double addPose) {
     setPivotMoveMode();
-    pivotController.setSetpoint(Math.min(pivotController.getSetpoint() + addPose,110));
+    pivotController.setSetpoint(pivotController.getSetpoint() + addPose);
   }
 
   public boolean isPivotAtPosition() {

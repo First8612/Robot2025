@@ -5,6 +5,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,6 +23,7 @@ public class AlignToTag extends Command {
     private PIDController xController = new PIDController(1.3, 0, 0);
     private PIDController yController = new PIDController(1.3, 0, 0);
     private PIDController rotationController = new PIDController(5, 0, 0);
+    private Debouncer debouncerForLimelight = new Debouncer(1.5, DebounceType.kFalling);
 
     private boolean hadTag = false;
 
@@ -43,7 +46,7 @@ public class AlignToTag extends Command {
 
     @Override
     public boolean isFinished() {
-        if (hadTag && !limelight.hasTarget()) {
+        if (hadTag && !debouncerForLimelight.calculate(limelight.hasTarget())) {
             return true;
         }
         
@@ -80,7 +83,7 @@ public class AlignToTag extends Command {
         if (Math.abs(targetPose.getRotation().getY()) < .1)
         {
             drive.withVelocityX( // forward
-                -xController.calculate(targetPose.getZ())
+                xController.calculate(targetPose.getZ())
             );
         }
 
