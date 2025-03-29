@@ -39,7 +39,11 @@ public class ApproachAndScoreAtPosition extends SequentialCommandGroup {
 
             // align and approach
             new AlignToTag(limelight, drivetrain),
-            new MoveMeters(0.1, drivetrain),
+            Commands.race(
+                new MoveMeters(0.2, drivetrain),
+                Commands.waitSeconds(2)
+            ),
+            Commands.waitSeconds(2),
             new GoToPresetWrist(1, ascender), // go to station to score
             new MoveMeters(-0.25, drivetrain)
         );

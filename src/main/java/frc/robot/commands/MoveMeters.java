@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class MoveMeters extends Command {
-    private final SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric()
+    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     private CommandSwerveDrivetrain drivetrain;
     private double meters;
@@ -41,7 +41,7 @@ public class MoveMeters extends Command {
         });
 
         driveController.setSetpoint(
-            drivetrain.getState().Pose.getX() + meters * reverse
+            drivetrain.getState().Pose.getX() + meters * (double)reverse
         );
         rateLimiter.reset(0);
     }
@@ -50,10 +50,14 @@ public class MoveMeters extends Command {
     public void execute() {
         //System.out.println("Moving 1");
 
-        var velocity = driveController.calculate(drivetrain.getState().Pose.getX());
+        var pose = drivetrain.getState().Pose;
+
+        var velocity = driveController.calculate(pose.getX());
         velocity = rateLimiter.calculate(velocity);
 
-        SmartDashboard.putNumber("MoveMeterDriveController.velocity", velocity);
+        SmartDashboard.putNumber("MoveMeterDriveController/pose/x", pose.getX());
+        SmartDashboard.putNumber("MoveMeterDriveController/pose/y", pose.getY());
+        SmartDashboard.putNumber("MoveMeterDriveController/velocity", velocity);
 
         drivetrain.setControl(forwardStraight.withVelocityX(velocity).withVelocityY(0));
     }
