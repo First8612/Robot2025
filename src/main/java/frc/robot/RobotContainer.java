@@ -29,10 +29,9 @@ import frc.robot.commands.GoToPreset.GoToPresetWrist;
 import frc.robot.generated.TunerConstants;
 import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Ascender;
+import frc.robot.subsystems.BALLGUN;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.StabbyThingy;
-//import frc.robot.subsystems.AlgaeExtender;
-//import frc.robot.subsystems.AlgaeGrabber;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -52,6 +51,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final Ascender ascender = new Ascender();
     private final StabbyThingy stabber = new StabbyThingy();
+    private BALLGUN ballgun = new BALLGUN();
     //private final AlgaeExtender extender = new AlgaeExtender();
     //private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
     private final CANdle candle = new CANdle(40);
@@ -162,6 +162,8 @@ public class RobotContainer {
         joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.75, true)));
         joystickOperator.button(7).onFalse(new RunCommand(() -> stabber.inFork(0,false)));
 
+        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> 
+        ballgun.setSpeeds(joystickOperator.getLeftX(),joystickOperator.getLeftY(),joystickOperator.getRightTriggerAxis())));
 
         stabber.inFork(0.1, false);
     }
