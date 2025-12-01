@@ -34,78 +34,78 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.StabbyThingy;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    // /* Setting up bindings for necessary control of the swerve drive platform */
+    // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    //         .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
+    //         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    // private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController joystickDrive = new CommandXboxController(0);
+    // private final CommandXboxController joystickDrive = new CommandXboxController(0);
     private final CommandXboxController joystickOperator = new CommandXboxController(1);
 
-    // Subsystems
+    // // Subsystems
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final Ascender ascender = new Ascender();
-    private final StabbyThingy stabber = new StabbyThingy();
+    // private final Ascender ascender = new Ascender();
+    // private final StabbyThingy stabber = new StabbyThingy();
     private BALLGUN ballgun = new BALLGUN();
-    //private final AlgaeExtender extender = new AlgaeExtender();
-    //private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
-    private final CANdle candle = new CANdle(40);
+    // // private final AlgaeExtender extender = new AlgaeExtender();
+    // // private final AlgaeGrabber algaeRoll = new AlgaeGrabber();
+    // private final CANdle candle = new CANdle(40);
 
     private final SendableChooser<Command> autoChooser;
 
-    // Sensors
-    private final Limelight limelightRight = new Limelight("limelight-right");
-    private final Limelight limelightLeft = new Limelight("limelight-left");
+    // // // Sensors
+    // private final Limelight limelightRight = new Limelight("limelight-right");
+    // private final Limelight limelightLeft = new Limelight("limelight-left");
 
-    // NT
-    StructPublisher<Pose2d> robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("Poses/Robot", Pose2d.struct).publish();
+    // // NT
+    // StructPublisher<Pose2d> robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("Poses/Robot", Pose2d.struct).publish();
 
     public double speedMulti = 1;
 
     public RobotContainer() {
-        //commands for pathplanner
-        CANdleConfiguration config = new CANdleConfiguration();
-        config.stripType = LEDStripType.RGB; // set the strip type to RGB
-        config.brightnessScalar = 0.2; // dim the LEDs to half brightness
-        candle.configAllSettings(config);
-        candle.setLEDs(255, 255, 255);
-        // StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
-        // candle.animate(rainbowAnim);
-        NamedCommands.registerCommand("Score Coral Group", new ApproachAndScoreAtPosition(3, drivetrain, ascender, stabber, limelightLeft));        
+        // commands for pathplanner
+        // CANdleConfiguration config = new CANdleConfiguration();
+        // config.stripType = LEDStripType.RGB; // set the strip type to RGB
+        // config.brightnessScalar = 0.2; // dim the LEDs to half brightness
+        // candle.configAllSettings(config);
+        // candle.setLEDs(255, 255, 255);
+        // // StrobeAnimation rainbowAnim = new StrobeAnimation(255,0,0,0, 0.9, 64);
+        // // candle.animate(rainbowAnim);
+        // NamedCommands.registerCommand("Score Coral Group", new ApproachAndScoreAtPosition(3, drivetrain, ascender, stabber, limelightLeft));        
         configureBindings();
 
         drivetrain.configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser("Leave 2 Auto");
         
-        SmartDashboard.putData("Auto Path", autoChooser);
+        // SmartDashboard.putData("Auto Path", autoChooser);
     }
 
-    void changeSpeed(double newSpeed) {
-        speedMulti = newSpeed;
-    }
+    // void changeSpeed(double newSpeed) {
+    //     speedMulti = newSpeed;
+    // }
 
     private void configureBindings() {
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-Math.pow(joystickDrive.getLeftY(), 3) * MaxSpeed * speedMulti) // Drive forward with negative Y (forward)
-                    .withVelocityY(-Math.pow(joystickDrive.getLeftX(), 3) * MaxSpeed * speedMulti) // Drive left with negative X (left)
-                    .withRotationalRate(-Math.pow(joystickDrive.getRightX(), 3) * MaxAngularRate * speedMulti) // Drive counterclockwise with negative X (left)
-            )
-        );
-        joystickDrive.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // drivetrain.setDefaultCommand(
+        //     // Drivetrain will execute this command periodically
+        //     drivetrain.applyRequest(() ->
+        //         drive.withVelocityX(-Math.pow(joystickDrive.getLeftY(), 3) * MaxSpeed * speedMulti) // Drive forward with negative Y (forward)
+        //             .withVelocityY(-Math.pow(joystickDrive.getLeftX(), 3) * MaxSpeed * speedMulti) // Drive left with negative X (left)
+        //             .withRotationalRate(-Math.pow(joystickDrive.getRightX(), 3) * MaxAngularRate * speedMulti) // Drive counterclockwise with negative X (left)
+        //     )
+        // );
+        // joystickDrive.a().whileTrue(drivetrain.applyRequest(() -> brake));
         
-        joystickDrive.rightBumper().onTrue(new InstantCommand(() -> changeSpeed(0.5)));
-        joystickDrive.rightBumper().whileFalse(new InstantCommand(() -> changeSpeed(1)));
+        // joystickDrive.rightBumper().onTrue(new InstantCommand(() -> changeSpeed(0.5)));
+        // joystickDrive.rightBumper().whileFalse(new InstantCommand(() -> changeSpeed(1)));
 
         //TEST BOT STUFF
         // joystickDrive.rightBumper().and(joystickDrive.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -114,19 +114,19 @@ public class RobotContainer {
         // joystickDrive.leftBumper().and(joystickDrive.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        //joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // joystickDrive.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
-        joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
+        // joystickDrive.x().whileTrue(new AlignToTag(limelightRight, drivetrain));
+        // joystickDrive.b().whileTrue(new AlignToTag(limelightLeft, drivetrain));
 
-        joystickOperator.povRight().onTrue(ascender.goToPosition(0));
-        joystickOperator.povDown().onTrue(ascender.goToPosition(4));
-        joystickOperator.povLeft().onTrue(ascender.goToPosition(2));
-        joystickOperator.povUp().onTrue(ascender.goToPosition(3));
-        joystickOperator.y().onTrue(ascender.goToPosition(1));
-        joystickOperator.rightBumper().onTrue(ascender.goToPosition(6));
-        joystickOperator.b().onTrue(new GoToPresetWrist(1, ascender));
+        // joystickOperator.povRight().onTrue(ascender.goToPosition(0));
+        // joystickOperator.povDown().onTrue(ascender.goToPosition(4));
+        // joystickOperator.povLeft().onTrue(ascender.goToPosition(2));
+        // joystickOperator.povUp().onTrue(ascender.goToPosition(3));
+        // joystickOperator.y().onTrue(ascender.goToPosition(1));
+        // joystickOperator.rightBumper().onTrue(ascender.goToPosition(6));
+        // joystickOperator.b().onTrue(new GoToPresetWrist(1, ascender));
 
         // vvvv THIS IS THE AUTO TEST ROUTINE
         // joystickOperator.x().onTrue(
@@ -153,19 +153,21 @@ public class RobotContainer {
 
         //joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.1, true)));
         //joystickOperator.button(7).whileFalse(new RunCommand(() -> stabber.inFork(0.1, false)));
-        joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.25, false)));
-        joystickOperator.a().onFalse(new RunCommand(() -> stabber.inFork(0, false)));
-        joystickOperator.x().whileTrue(new RunCommand(() -> stabber.inFork(-0.125, true)));
-        joystickOperator.x().onFalse(new RunCommand(() -> stabber.inFork(0, false)));
-        joystickOperator.button(6).whileTrue(new RunCommand(() -> stabber.inFork(0.25, true)));
-        joystickOperator.button(6).onFalse(new RunCommand(() -> stabber.inFork(0,false)));
-        joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.75, true)));
-        joystickOperator.button(7).onFalse(new RunCommand(() -> stabber.inFork(0,false)));
 
-        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> 
-        ballgun.setSpeeds(joystickOperator.getLeftX(),joystickOperator.getLeftY(),joystickOperator.getRightTriggerAxis())));
 
-        stabber.inFork(0.1, false);
+        // joystickOperator.a().whileTrue(new RunCommand(() -> stabber.inFork(0.25, false)));
+        // joystickOperator.a().onFalse(new RunCommand(() -> stabber.inFork(0, false)));
+        // joystickOperator.x().whileTrue(new RunCommand(() -> stabber.inFork(-0.125, true)));
+        // joystickOperator.x().onFalse(new RunCommand(() -> stabber.inFork(0, false)));
+        // joystickOperator.button(6).whileTrue(new RunCommand(() -> stabber.inFork(0.25, true)));
+        // joystickOperator.button(6).onFalse(new RunCommand(() -> stabber.inFork(0,false)));
+        // joystickOperator.button(7).whileTrue(new RunCommand(() -> stabber.inFork(0.75, true)));
+        // joystickOperator.button(7).onFalse(new RunCommand(() -> stabber.inFork(0,false)));
+
+        joystickOperator.rightTrigger().whileTrue(new RunCommand(() -> ballgun.setSpeeds(joystickOperator.getLeftX(), joystickOperator.getLeftY(), (joystickOperator.getRightTriggerAxis() - 0.5) * 2, 1, 1)));
+        joystickOperator.rightTrigger().whileFalse(new RunCommand(() -> ballgun.setSpeeds(0,0,0,0,0)));
+        joystickOperator.a().whileTrue(new RunCommand(() -> ballgun.testSpeeds()));
+        // stabber.inFork(0.1, false);
     }
 
     public void robotInit() {
@@ -176,16 +178,16 @@ public class RobotContainer {
 
         // var state = drivetrain.getState();
         // robotPosePublisher.set(state.Pose, (long)state.Timestamp);
-
+        System.out.println(joystickOperator.getRightTriggerAxis());
 
     }
 
     public void autonomousInit() {
-        ascender.startPosFix();
+        // ascender.startPosFix();
         //extender.setAlgae(0);
     }
     public void teleopInit() {
-        ascender.startPosFix();
+        // ascender.startPosFix();
         //extender.setAlgae(0);
         //ascender.pivotMotorLeft.setPosition(0);
         //ascender.pivotMotorRight.setPosition(0);
@@ -193,7 +195,7 @@ public class RobotContainer {
     public void teleopPeriodic() {
         var move = joystickOperator.getRightY();
         if (Math.abs(move) > 0.25) {
-            ascender.pivotControl(move);
+            // ascender.pivotControl(move);
         }
     }
     

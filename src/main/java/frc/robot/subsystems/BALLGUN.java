@@ -4,10 +4,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 
 public class BALLGUN {
-    private TalonFX upMotor = new TalonFX(0);
-    private TalonFX rightMotor = new TalonFX(1);
-    private TalonFX downMotor = new TalonFX(2);
-    private TalonFX leftMotor = new TalonFX(3);
+    private TalonFX upMotor = new TalonFX(1);
+    private TalonFX rightMotor = new TalonFX(2);
+    private TalonFX downMotor = new TalonFX(3);
+    private TalonFX leftMotor = new TalonFX(4);
+
+
+
 
     private double upSpeed = 0;
     private double rightSpeed = 0;
@@ -15,15 +18,26 @@ public class BALLGUN {
     private double leftSpeed = 0;
 
     //sets the speed of the motors
-    public void setSpeeds(double xSpeed, double ySpeed, double totalSpeed) {
-        upSpeed = totalSpeed * ((ySpeed + 1) / 2);
-        rightSpeed = totalSpeed * ((xSpeed + 1) / 2);
-        downSpeed = totalSpeed * ((1 - ySpeed) / 2);
-        leftSpeed = totalSpeed * ((1 - ySpeed) / 2);
+    public void setSpeeds(double xSpeed, double ySpeed, double totalSpeed, double maxSpeed, double spinAmount) {
+        upSpeed = totalSpeed * ((ySpeed * spinAmount + 1) / 2);
+        rightSpeed = totalSpeed * ((xSpeed * spinAmount + 1) / 2);
+        downSpeed = totalSpeed * ((1 - ySpeed * spinAmount) / 2);
+        leftSpeed = totalSpeed * ((1 - xSpeed * spinAmount) / 2);
 
-        upMotor.set(MathUtil.clamp(upSpeed * 0.25, -0.25, 0.25));
-        rightMotor.set(MathUtil.clamp(rightSpeed * 0.25, -0.25, 0.25));
-        downMotor.set(MathUtil.clamp(downSpeed * 0.25, -0.25, 0.25));
-        leftMotor.set(MathUtil.clamp(leftSpeed * 0.25, -0.25, 0.25));
+        upMotor.set(MathUtil.clamp(upSpeed * maxSpeed, -maxSpeed, maxSpeed));
+        rightMotor.set(MathUtil.clamp(rightSpeed * maxSpeed, -maxSpeed, maxSpeed));
+        downMotor.set(MathUtil.clamp(downSpeed * maxSpeed, -maxSpeed, maxSpeed));
+        leftMotor.set(MathUtil.clamp(leftSpeed * maxSpeed, -maxSpeed, maxSpeed));
+
+        System.out.println(MathUtil.clamp(upSpeed * maxSpeed, -maxSpeed, maxSpeed));
+        System.out.println(MathUtil.clamp(rightSpeed * maxSpeed, -maxSpeed, maxSpeed));
+        System.out.println(MathUtil.clamp(downSpeed * maxSpeed, -maxSpeed, maxSpeed));
+        System.out.println(MathUtil.clamp(leftSpeed * maxSpeed, -maxSpeed, maxSpeed));
+    }
+    public void testSpeeds() {
+        upMotor.set(0.1);
+        rightMotor.set(0.1);
+        downMotor.set(0.1);
+        leftMotor.set(0.1);
     }
 }

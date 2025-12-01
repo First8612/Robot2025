@@ -30,8 +30,8 @@ import frc.robot.commands.GoToPreset.GoToPresetNormal;
 public class Ascender extends SubsystemBase {
   /** Creates a new Ascender. */
   //needs ID!!!
-  private TalonFX ascendMotor = new TalonFX(1);
-  public TalonFX wristMotor = new TalonFX(2);
+  // private TalonFX ascendMotor = new TalonFX(1);
+  // public TalonFX wristMotor = new TalonFX(2);
   public TalonFX pivotMotorRight = new TalonFX(60);
   public TalonFX pivotMotorLeft = new TalonFX(61);
   public CANcoder pivotCANcoder = new CANcoder(14);
@@ -87,15 +87,15 @@ public class Ascender extends SubsystemBase {
     //ascendMotor.setPosition(0);
     //ascendMotor.curre
     //ascendMotorRight.MasterID(100).OpposeMasterDirection(false);
-    ascendMotor.getConfigurator().apply(brakeModeConfig);
-    ascendMotor.getConfigurator().apply(ascentCurrentLimit);
+    // ascendMotor.getConfigurator().apply(brakeModeConfig);
+    // ascendMotor.getConfigurator().apply(ascentCurrentLimit);
     ascendController.setIZone(2);
     
     /*** WRIST */
-    wristMotor.getConfigurator().apply(new CurrentLimitsConfigs()
-      .withStatorCurrentLimit(30)
-      .withStatorCurrentLimitEnable(true));
-    wristMotor.getConfigurator().apply(brakeModeConfig);
+    // wristMotor.getConfigurator().apply(new CurrentLimitsConfigs()
+      // .withStatorCurrentLimit(30)
+      // .withStatorCurrentLimitEnable(true));
+    // wristMotor.getConfigurator().apply(brakeModeConfig);
 
     /*** PIVOT ****/
     pivotCurrentLimit.StatorCurrentLimit = 30;
@@ -228,8 +228,8 @@ public class Ascender extends SubsystemBase {
     wristSpeed = MathUtil.clamp(wristSpeed, -0.5, 0.5);
     pivotSpeed = MathUtil.clamp(pivotSpeed, -2.5, 2.5);
 
-    ascendMotor.set(ascendSpeed);
-    wristMotor.set(wristSpeed);
+    // ascendMotor.set(ascendSpeed);
+    // wristMotor.set(wristSpeed);
     pivotMotorLeft.set(pivotSpeed);
 
     // SmartDashboard.putNumber("Wrist/WristPosition Motor", wristMotor.getPosition().getValueAsDouble());
